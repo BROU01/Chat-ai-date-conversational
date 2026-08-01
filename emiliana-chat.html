@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emiliana - Chat</title>
+    <link rel="stylesheet" href="emiliana.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+</head>
+<body>
+    <div class="chat-app" id="chat-app">
+        <!-- Sidebar -->
+        <aside class="chat-sidebar" id="chat-sidebar">
+            <!-- Brand Section -->
+            <div class="sidebar-section">
+                <div class="sidebar-brand">
+                    <div class="sidebar-logo">E</div>
+                    <span class="sidebar-title text-gradient">Emiliana</span>
+                </div>
+            </div>
+
+            <button class="sidebar-toggle" id="sidebar-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Companions Section -->
+            <div class="companions-section">
+                <div class="section-label">Mes Compagnons</div>
+                <div class="companions-list" id="companions-list">
+                    <!-- Companions will be rendered here -->
+                </div>
+                <button class="add-companion-btn" id="add-companion-btn">
+                    <i class="fas fa-plus"></i>
+                    <span>Ajouter un compagnon</span>
+                </button>
+            </div>
+
+            <!-- User Section -->
+            <div class="user-section">
+                <div class="user-profile" id="user-profile">
+                    <div class="user-avatar" id="user-avatar">
+                        <i class="fas fa-user"></i>
+                        <div class="status-indicator online" id="user-status-indicator"></div>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name" id="user-name">Utilisateur</div>
+                        <div class="user-status">
+                            <span class="status-dot"></span>
+                            <span>En ligne</span>
+                        </div>
+                    </div>
+                    <button class="user-settings-btn" id="user-settings-btn" title="Paramètres">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="chat-main" id="chat-main">
+            <!-- Welcome Screen (shown when no companion selected) -->
+            <div class="welcome-screen" id="welcome-screen">
+                <div class="welcome-content">
+                    <div class="welcome-icon text-gradient">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h2>Bienvenue sur Emiliana</h2>
+                    <p>Sélectionnez un compagnon pour commencer à discuter ou créez-en un nouveau.</p>
+                    <button class="btn btn-primary" id="welcome-create-btn">
+                        <i class="fas fa-plus"></i>
+                        Créer un compagnon
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chat Screen (shown when companion is selected) -->
+            <div class="chat-screen hidden" id="chat-screen">
+                <!-- Chat Header -->
+                <div class="chat-header">
+                    <div class="chat-header-info">
+                        <div class="chat-companion-avatar" id="chat-companion-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="chat-companion-details">
+                            <h2 id="chat-companion-name">Compagnon</h2>
+                            <p id="chat-companion-persona">En ligne</p>
+                        </div>
+                    </div>
+                    <div class="chat-header-actions">
+                        <button class="btn btn-icon btn-ghost" id="chat-settings-btn" title="Paramètres du compagnon">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                        <button class="btn btn-icon btn-ghost" id="chat-delete-btn" title="Supprimer le compagnon">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Messages Area -->
+                <div class="chat-messages" id="chat-messages">
+                    <!-- Messages will be rendered here -->
+                </div>
+
+                <!-- Typing Indicator -->
+                <div class="typing-indicator hidden" id="typing-indicator">
+                    <div class="typing-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+
+                <!-- Chat Input -->
+                <div class="chat-input-area">
+                    <div class="chat-input-container">
+                        <textarea class="chat-input" id="message-input" placeholder="Tapez votre message..." rows="1"></textarea>
+                        <button class="chat-send-btn" id="send-btn" title="Envoyer">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Companion Creation/Edit Modal -->
+    <div class="modal-overlay" id="companion-modal">
+        <div class="modal companion-modal" style="max-width: 650px;">
+            <div class="modal-header-companion">
+                <div class="modal-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div>
+                    <h2 class="modal-title" id="companion-modal-title">Créer votre compagnon</h2>
+                    <p class="modal-subtitle">Personnalisez votre compagnon IA unique</p>
+                </div>
+                <button class="modal-close" id="companion-modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form class="auth-form" id="companion-form">
+                <!-- Basic Info Section -->
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-user"></i>
+                        Informations de base
+                    </h3>
+                    
+                    <!-- Companion Name -->
+                    <div class="form-group">
+                        <label class="form-label">Nom du compagnon</label>
+                        <input type="text" class="form-input" id="companion-name" placeholder="Choisissez un nom unique" required maxlength="30">
+                        <small style="color: rgba(255,255,255,0.6);">30 caractères maximum</small>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-input" id="companion-description" placeholder="Décrivez votre compagnon..." rows="3" maxlength="200"></textarea>
+                        <small style="color: rgba(255,255,255,0.6);">200 caractères maximum</small>
+                    </div>
+                </div>
+
+                <!-- Appearance Section -->
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-palette"></i>
+                        Apparence
+                    </h3>
+                    
+                    <!-- Gender Selection -->
+                    <div class="form-group">
+                        <label class="form-label">Genre</label>
+                        <div class="gender-selector">
+                            <button type="button" class="gender-btn" data-gender="male">
+                                <i class="fas fa-user"></i>
+                                <span>Masculin</span>
+                            </button>
+                            <button type="button" class="gender-btn" data-gender="female">
+                                <i class="fas fa-user-dress"></i>
+                                <span>Féminin</span>
+                            </button>
+                            <button type="button" class="gender-btn" data-gender="neutral">
+                                <i class="fas fa-user-astronaut"></i>
+                                <span>Neutre</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Photo Upload -->
+                    <div class="form-group">
+                        <label class="form-label">Avatar</label>
+                        <div class="avatar-upload">
+                            <div class="avatar-preview" id="companion-avatar-preview">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                            <div class="avatar-controls">
+                                <input type="file" id="companion-photo" accept="image/*" style="display: none;">
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('companion-photo').click()">
+                                    <i class="fas fa-upload"></i>
+                                    Choisir une image
+                                </button>
+                                <button type="button" class="btn btn-ghost btn-sm" id="generate-avatar">
+                                    <i class="fas fa-dice"></i>
+                                    Générer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Personality Section -->
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-brain"></i>
+                        Personnalité
+                    </h3>
+                    
+                    <!-- Personality Type -->
+                    <div class="form-group">
+                        <label class="form-label">Type de personnalité</label>
+                        <div class="personality-selector">
+                            <button type="button" class="gender-btn" data-personality="ami">
+                                <i class="fas fa-user-friends"></i>
+                                <span>Ami</span>
+                            </button>
+                            <button type="button" class="gender-btn" data-personality="copine">
+                                <i class="fas fa-heart"></i>
+                                <span>Copine</span>
+                            </button>
+                            <button type="button" class="gender-btn" data-personality="mentor">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span>Mentor</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Traits -->
+                    <div class="form-group">
+                        <label class="form-label">Traits de caractère</label>
+                        <div class="traits-grid" id="traits-grid">
+                            <label class="trait-tag">
+                                <input type="checkbox" value="amical">
+                                <i class="fas fa-smile"></i>
+                                <span>Amical</span>
+                            </label>
+                            <label class="trait-tag">
+                                <input type="checkbox" value="drôle">
+                                <i class="fas fa-laugh"></i>
+                                <span>Drôle</span>
+                            </label>
+                            <label class="trait-tag">
+                                <input type="checkbox" value="intelligent">
+                                <i class="fas fa-lightbulb"></i>
+                                <span>Intelligent</span>
+                            </label>
+                            <label class="trait-tag">
+                                <input type="checkbox" value="calme">
+                                <i class="fas fa-spa"></i>
+                                <span>Calme</span>
+                            </label>
+                            <label class="trait-tag">
+                                <input type="checkbox" value="énergique">
+                                <i class="fas fa-bolt"></i>
+                                <span>Énergique</span>
+                            </label>
+                            <label class="trait-tag">
+                                <input type="checkbox" value="créatif">
+                                <i class="fas fa-paint-brush"></i>
+                                <span>Créatif</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-companion">
+                        Annuler
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="save-companion-btn">
+                        <i class="fas fa-check"></i>
+                        <span id="companion-form-btn-text">Créer le compagnon</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- User Settings Modal -->
+    <div class="modal-overlay" id="user-settings-modal">
+        <div class="modal" style="max-width: 520px;">
+            <button class="modal-close" id="user-settings-close">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="modal-header">
+                <h2 class="modal-title">Paramètres utilisateur</h2>
+            </div>
+            <p class="modal-subtitle">Gérez votre profil et vos préférences</p>
+            </div>
+
+            <form class="auth-form">
+                <!-- User Photo -->
+                <div class="form-group">
+                    <label class="form-label">Photo de profil</label>
+                    <div style="display: flex; align-items: center; gap: var(--space-md);">
+                        <div class="user-avatar" id="user-avatar-settings" style="width: 64px; height: 64px; position: relative;">
+                            <i class="fas fa-user" style="font-size: 1.5rem;"></i>
+                            <div class="status-indicator online" style="width: 14px; height: 14px;"></div>
+                        </div>
+                        <div>
+                            <input type="file" id="user-photo" accept="image/*" style="display: none;">
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('user-photo').click()">
+                                <i class="fas fa-upload"></i>
+                                Changer la photo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Username -->
+                <div class="form-group">
+                    <label class="form-label">Nom d'utilisateur</label>
+                    <input type="text" class="form-input" id="settings-username" placeholder="Votre nom d'utilisateur">
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="settings-email" placeholder="votre@email.com">
+                </div>
+
+                <!-- Theme Customization -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-palette"></i>
+                        Personnalisation du thème
+                    </label>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-md);">
+                        <div>
+                            <label class="form-label-sm">Couleur principale</label>
+                            <div style="display: flex; align-items: center; gap: var(--space-sm);">
+                                <input type="color" id="primary-color" value="#6B72FF" style="width: 50px; height: 40px; border: none; border-radius: var(--radius-md); cursor: pointer;">
+                                <span style="color: rgba(255,255,255,0.7); font-size: 0.875rem;">#6B72FF</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label-sm">Couleur secondaire</label>
+                            <div style="display: flex; align-items: center; gap: var(--space-sm);">
+                                <input type="color" id="secondary-color" value="#47C7B0" style="width: 50px; height: 40px; border: none; border-radius: var(--radius-md); cursor: pointer;">
+                                <span style="color: rgba(255,255,255,0.7); font-size: 0.875rem;">#47C7B0</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label-sm">Couleur d'accent</label>
+                            <div style="display: flex; align-items: center; gap: var(--space-sm);">
+                                <input type="color" id="accent-color" value="#8E2DE2" style="width: 50px; height: 40px; border: none; border-radius: var(--radius-md); cursor: pointer;">
+                                <span style="color: rgba(255,255,255,0.7); font-size: 0.875rem;">#8E2DE2</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label-sm">Mode sombre</label>
+                            <label class="attribute-tag selected">
+                                <input type="checkbox" checked style="display: none;">
+                                <i class="fas fa-check"></i>
+                                <span>Activé</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Preferences -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-comments"></i>
+                        Préférences de chat
+                    </label>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-md);">
+                        <div>
+                            <label class="form-label-sm">Taille de police</label>
+                            <select class="form-input form-select" id="font-size">
+                                <option value="small">Petite</option>
+                                <option value="medium" selected>Moyenne</option>
+                                <option value="large">Grande</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label-sm">Style de bulles</label>
+                            <select class="form-input form-select" id="bubble-style">
+                                <option value="rounded" selected>Arrondi</option>
+                                <option value="square">Carré</option>
+                                <option value="minimal">Minimal</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label-sm">Son des messages</label>
+                            <label class="attribute-tag selected">
+                                <input type="checkbox" checked style="display: none;">
+                                <i class="fas fa-check"></i>
+                                <span>Activé</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label class="form-label-sm">Notifications desktop</label>
+                            <label class="attribute-tag selected">
+                                <input type="checkbox" checked style="display: none;">
+                                <i class="fas fa-check"></i>
+                                <span>Activé</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: var(--space-md); margin-top: var(--space-md);">
+                    <button type="button" class="btn btn-secondary" style="flex: 1;" id="reset-theme-btn">
+                        <i class="fas fa-undo"></i>
+                        Réinitialiser le thème
+                    </button>
+                    <button type="button" class="btn btn-primary" style="flex: 1;" id="save-settings-btn">
+                        <i class="fas fa-save"></i>
+                        Enregistrer
+                    </button>
+                    <button type="button" class="btn btn-secondary" style="flex: 1;" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Déconnexion
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay" id="delete-modal">
+        <div class="modal" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Supprimer le compagnon</h2>
+                <p class="modal-subtitle">Êtes-vous sûr de vouloir supprimer ce compagnon? Cette action est irréversible.</p>
+            </div>
+            <div style="display: flex; gap: var(--space-md); margin-top: var(--space-xl);">
+                <button type="button" class="btn btn-secondary" style="flex: 1;" id="cancel-delete-btn">Annuler</button>
+                <button type="button" class="btn btn-primary" style="flex: 1; background: var(--error);" id="confirm-delete-btn">
+                    <i class="fas fa-trash-alt"></i>
+                    Supprimer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+        
+        // State
+        let currentUser = null;
+        let companions = [];
+        let activeCompanion = null;
+        let editingCompanionId = null;
+        let messages = {};
+
+        // Available attributes
+        const attributes = {
+            ami: [
+                { id: 'bienveillant', name: 'Bienveillant', icon: 'fa-hand-holding-heart' },
+                { id: 'creatif', name: 'Créatif', icon: 'fa-palette' },
+                { id: 'confident', name: 'Confident', icon: 'fa-shield-alt' },
+                { id: 'mentor', name: 'Mentor inspirant', icon: 'fa-graduation-cap' }
+            ],
+            copine: [
+                { id: 'coquine', name: 'Coquine', icon: 'fa-smile-wink' },
+                { id: 'complice', name: 'Complice', icon: 'fa-handshake' },
+                { id: 'confidente', name: 'Confidente', icon: 'fa-ear-listen' },
+                { id: 'amoureuse', name: 'Amoureuse', icon: 'fa-heart' }
+            ]
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            if (checkAuth()) {
+                setupEventListeners();
+                loadCompanions();
+                updateUserInfo();
+            }
+        });
+
+        function checkAuth() {
+            const userData = localStorage.getItem('emiliana_user');
+            const token = localStorage.getItem('emiliana_token');
+            if (!userData || !token) {
+                window.location.href = 'emiliana-login.html';
+                return false;
+            }
+            currentUser = JSON.parse(userData);
+            return true;
+        }
+
+        function updateUserInfo() {
+            document.getElementById('user-name').textContent = currentUser.username;
+            if (currentUser.photoURL) {
+                document.getElementById('user-avatar').style.backgroundImage = `url(${currentUser.photoURL})`;
+                document.getElementById('user-avatar').innerHTML = '';
+            }
+        }
+
+        async function loadCompanions() {
+            try {
+                // Pour l'instant on simule avec localStorage, mais prêt pour l'API
+                const stored = localStorage.getItem('emiliana_companions');
+                companions = stored ? JSON.parse(stored) : [];
+                renderCompanionsList();
+            } catch (error) {
+                console.error("Error loading companions:", error);
+            }
+        }
+
+        async function fetchAIResponse(userMessage) {
+            showTypingIndicator();
+            
+            try {
+                const res = await fetch(`${API_URL}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('emiliana_token')}`
+                    },
+                    body: JSON.stringify({
+                        message: userMessage,
+                        botType: activeCompanion.personality === 'copine' ? 'complice' : 'bienveillant',
+                        companionProfile: {
+                            name: activeCompanion.name,
+                            archetype: activeCompanion.personality,
+                            interests: activeCompanion.attributes?.join(', ')
+                        },
+                        conversationHistory: getConversationHistory()
+                    })
+                });
+
+                const data = await res.json();
+                hideTypingIndicator();
+
+                if (data.success) {
+                    const aiMsg = {
+                        id: Date.now(),
+                        sender: 'companion',
+                        text: data.response,
+                        timestamp: new Date().toISOString()
+                    };
+                    addMessageToChat(aiMsg);
+                } else {
+                    addMessageToChat({
+                        id: Date.now(),
+                        sender: 'companion',
+                        text: data.message || "Désolé, je rencontre une petite difficulté technique.",
+                        timestamp: new Date().toISOString()
+                    });
+                }
+            } catch (error) {
+                hideTypingIndicator();
+                console.error("Chat error:", error);
+            }
+        }
+
+        function getConversationHistory() {
+            const key = `messages_${activeCompanion.id}`;
+            const history = messages[key] || [];
+            return history.slice(-10).map(m => ({
+                role: m.sender === 'user' ? 'user' : 'assistant',
+                content: m.text
+            }));
+        }
+
+        function addMessageToChat(msg) {
+            const key = `messages_${activeCompanion.id}`;
+            if (!messages[key]) messages[key] = [];
+            messages[key].push(msg);
+            renderMessage(msg);
+            saveMessagesToLocal();
+        }
+
+        function saveMessagesToLocal() {
+            localStorage.setItem(`emiliana_messages`, JSON.stringify(messages));
+        }
+            document.getElementById('user-name').textContent = currentUser.username || 'Utilisateur';
+            
+            loadCompanions();
+        }
+
+        function loadCompanions() {
+            const stored = localStorage.getItem('emiliana_companions');
+            companions = stored ? JSON.parse(stored) : [];
+            renderCompanionsList();
+        }
+
+        function saveCompanions() {
+            localStorage.setItem('emiliana_companions', JSON.stringify(companions));
+        }
+
+        function getCurrentUserId() {
+            const user = JSON.parse(localStorage.getItem('emiliana_user') || '{}');
+            return user.id || 'anonymous';
+        }
+
+        function showTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) {
+                indicator.classList.remove('hidden');
+            }
+        }
+
+        function hideTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) {
+                indicator.classList.add('hidden');
+            }
+        }
+
+        function generateAIResponse(message) {
+            const responses = [
+                "Je comprends ce que tu veux dire. Raconte-moi en plus !",
+                "C'est intéressant ! Comment te sens-tu à ce sujet ?",
+                "Merci de partager ça avec moi. Qu'est-ce qui t'amène ?",
+                "Je suis là pour t'écouter. Continue, je t'entends.",
+                "C'est une belle réflexion. Qu'est-ce qui t'inspire ?"
+            ];
+            return responses[Math.floor(Math.random() * responses.length)];
+        }
+
+        function setupEventListeners() {
+            // Sidebar toggle
+            document.getElementById('sidebar-toggle').addEventListener('click', () => {
+                document.getElementById('chat-sidebar').classList.toggle('open');
+            });
+
+            // Add companion
+            document.getElementById('add-companion-btn').addEventListener('click', () => openCompanionModal());
+            document.getElementById('welcome-create-btn').addEventListener('click', () => openCompanionModal());
+
+            // Companion modal
+            document.getElementById('companion-modal-close').addEventListener('click', closeCompanionModal);
+            document.getElementById('companion-modal').addEventListener('click', (e) => {
+                if (e.target.id === 'companion-modal') closeCompanionModal();
+            });
+
+            // Gender selection
+            document.querySelectorAll('.gender-selector .gender-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.gender-selector .gender-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+
+            // Personality selection
+            document.querySelectorAll('.personality-selector .gender-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.personality-selector .gender-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    updateAttributes(btn.dataset.personality);
+                });
+            });
+
+            // Companion form
+            document.getElementById('companion-form').addEventListener('submit', saveCompanion);
+
+            // Companion photo
+            document.getElementById('companion-photo').addEventListener('change', handleCompanionPhoto);
+
+            // User settings
+            document.getElementById('user-settings-btn').addEventListener('click', () => {
+                document.getElementById('user-settings-modal').classList.add('active');
+                loadUserSettings();
+            });
+            document.getElementById('user-settings-close').addEventListener('click', () => {
+                document.getElementById('user-settings-modal').classList.remove('active');
+            });
+            document.getElementById('logout-btn').addEventListener('click', logout);
+
+            // Theme customization
+            document.getElementById('primary-color')?.addEventListener('input', (e) => {
+                updateThemeColor('--primary-400', e.target.value);
+                document.querySelector('#primary-color + span').textContent = e.target.value.toUpperCase();
+            });
+            document.getElementById('secondary-color')?.addEventListener('input', (e) => {
+                updateThemeColor('--accent-cyan', e.target.value);
+                document.querySelector('#secondary-color + span').textContent = e.target.value.toUpperCase();
+            });
+            document.getElementById('accent-color')?.addEventListener('input', (e) => {
+                updateThemeColor('--primary-600', e.target.value);
+                document.querySelector('#accent-color + span').textContent = e.target.value.toUpperCase();
+            });
+            document.getElementById('reset-theme-btn')?.addEventListener('click', resetTheme);
+            document.getElementById('save-settings-btn')?.addEventListener('click', saveUserSettings);
+
+            // Chat
+            document.getElementById('send-btn').addEventListener('click', sendMessage);
+            document.getElementById('message-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // Delete modal
+            document.getElementById('chat-delete-btn').addEventListener('click', () => {
+                document.getElementById('delete-modal').classList.add('active');
+            });
+            document.getElementById('cancel-delete-btn').addEventListener('click', () => {
+                document.getElementById('delete-modal').classList.remove('active');
+            });
+            document.getElementById('confirm-delete-btn').addEventListener('click', deleteActiveCompanion);
+        }
+
+        function renderCompanionsList() {
+            const list = document.getElementById('companions-list');
+            list.innerHTML = '';
+
+            if (companions.length === 0) {
+                list.innerHTML = '<p style="color: rgba(255,255,255,0.4); text-align: center; padding: var(--space-md); font-size: 0.875rem;">Aucun compagnon. Créez-en un!</p>';
+                return;
+            }
+
+            companions.forEach(companion => {
+                const item = document.createElement('div');
+                item.className = `companion-item ${activeCompanion && activeCompanion.id === companion.id ? 'active' : ''}`;
+                item.innerHTML = `
+                    <div class="companion-avatar">
+                        ${companion.photo ? `<img src="${companion.photo}" alt="${companion.name}">` : `<i class="fas fa-${companion.gender === 'female' ? 'user-dress' : 'user'}"></i>`}
+                    </div>
+                    <div class="companion-info">
+                        <div class="companion-name">${companion.name}</div>
+                        <div class="companion-persona">${companion.personality === 'ami' ? 'Ami' : 'Copine'} - ${companion.attributes.join(', ')}</div>
+                    </div>
+                    <div class="companion-actions">
+                        <button class="companion-action-btn" title="Modifier" onclick="editCompanion(${companion.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="companion-action-btn" title="Supprimer" onclick="deleteCompanion(${companion.id})">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                `;
+                item.addEventListener('click', () => selectCompanion(companion));
+                list.appendChild(item);
+            });
+        }
+
+        function selectCompanion(companion) {
+            activeCompanion = companion;
+            renderCompanionsList();
+            
+            document.getElementById('welcome-screen').classList.add('hidden');
+            document.getElementById('chat-screen').classList.remove('hidden');
+            
+            // Update header
+            const avatar = document.getElementById('chat-companion-avatar');
+            if (companion.photo) {
+                avatar.innerHTML = `<img src="${companion.photo}" alt="${companion.name}">`;
+            } else {
+                avatar.innerHTML = `<i class="fas fa-${companion.gender === 'female' ? 'user-dress' : 'user'}"></i>`;
+            }
+            document.getElementById('chat-companion-name').textContent = companion.name;
+            document.getElementById('chat-companion-persona').textContent = `${companion.personality === 'ami' ? 'Ami' : 'Copine'} - ${companion.attributes.join(', ')}`;
+            
+            renderMessages();
+        }
+
+        function openCompanionModal(companion = null) {
+            editingCompanionId = companion ? companion.id : null;
+            
+            document.getElementById('companion-modal-title').textContent = companion ? 'Modifier le compagnon' : 'Créer un compagnon';
+            document.getElementById('companion-form-btn-text').textContent = companion ? 'Enregistrer' : 'Créer le compagnon';
+            
+            if (companion) {
+                document.getElementById('companion-name').value = companion.name;
+                document.querySelectorAll('.gender-selector .gender-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.gender === companion.gender);
+                });
+                document.querySelectorAll('.personality-selector .gender-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.personality === companion.personality);
+                });
+                updateAttributes(companion.personality, companion.attributes);
+                
+                const preview = document.getElementById('companion-avatar-preview');
+                if (companion.photo) {
+                    preview.innerHTML = `<img src="${companion.photo}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                }
+            } else {
+                document.getElementById('companion-name').value = '';
+                document.querySelectorAll('.gender-selector .gender-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.personality-selector .gender-btn').forEach(btn => btn.classList.remove('active'));
+                updateAttributes('ami', []);
+                document.getElementById('companion-avatar-preview').innerHTML = '<i class="fas fa-camera" style="font-size: 1.5rem; color: rgba(255,255,255,0.5);"></i>';
+            }
+            
+            document.getElementById('companion-modal').classList.add('active');
+        }
+
+        function closeCompanionModal() {
+            document.getElementById('companion-modal').classList.remove('active');
+            editingCompanionId = null;
+        }
+
+        function updateAttributes(personality, selected = []) {
+            const grid = document.getElementById('attributes-grid');
+            const attrs = attributes[personality] || [];
+            
+            grid.innerHTML = attrs.map(attr => `
+                <label class="attribute-tag ${selected.includes(attr.name) ? 'selected' : ''}" data-attr="${attr.name}">
+                    <input type="checkbox" name="attributes" value="${attr.name}" ${selected.includes(attr.name) ? 'checked' : ''} style="display: none;">
+                    <i class="fas ${attr.icon}"></i>
+                    <span>${attr.name}</span>
+                </label>
+            `).join('');
+            
+            grid.querySelectorAll('.attribute-tag').forEach(tag => {
+                tag.addEventListener('click', () => {
+                    tag.classList.toggle('selected');
+                    const checkbox = tag.querySelector('input');
+                    checkbox.checked = !checkbox.checked;
+                });
+            });
+        }
+
+        let companionPhotoData = null;
+        
+        function handleCompanionPhoto(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                companionPhotoData = event.target.result;
+                const preview = document.getElementById('companion-avatar-preview');
+                preview.innerHTML = `<img src="${companionPhotoData}" style="width: 100%; height: 100%; object-fit: cover;">`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function saveCompanion(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('companion-name').value.trim();
+            if (!name) return;
+            
+            const gender = document.querySelector('.gender-selector .gender-btn.active')?.dataset.gender || 'male';
+            const personality = document.querySelector('.personality-selector .gender-btn.active')?.dataset.personality || 'ami';
+            const selectedAttrs = Array.from(document.querySelectorAll('#attributes-grid input:checked')).map(i => i.value);
+            
+            const companion = {
+                id: editingCompanionId || Date.now(),
+                name,
+                gender,
+                personality,
+                attributes: selectedAttrs,
+                photo: companionPhotoData,
+                createdAt: editingCompanionId ? companions.find(c => c.id === editingCompanionId)?.createdAt : new Date().toISOString()
+            };
+            
+            if (editingCompanionId) {
+                const index = companions.findIndex(c => c.id === editingCompanionId);
+                if (index !== -1) companions[index] = companion;
+            } else {
+                if (companions.length >= 5) {
+                    alert('Vous ne pouvez pas avoir plus de 5 compagnons.');
+                    return;
+                }
+                companions.push(companion);
+            }
+            
+            saveCompanions();
+            renderCompanionsList();
+            closeCompanionModal();
+            companionPhotoData = null;
+            
+            if (!activeCompanion) {
+                selectCompanion(companion);
+            }
+        }
+
+        window.editCompanion = function(id) {
+            const companion = companions.find(c => c.id === id);
+            if (companion) openCompanionModal(companion);
+        };
+
+        window.deleteCompanion = function(id) {
+            activeCompanion = companions.find(c => c.id === id) || activeCompanion;
+            document.getElementById('delete-modal').classList.add('active');
+        };
+
+        function deleteActiveCompanion() {
+            if (!activeCompanion) return;
+            
+            companions = companions.filter(c => c.id !== activeCompanion.id);
+            saveCompanions();
+            activeCompanion = null;
+            
+            document.getElementById('delete-modal').classList.remove('active');
+            renderCompanionsList();
+        }
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('message-input');
+            const message = input.value.trim();
+            
+            if (!message || !activeCompanion) return;
+            
+            // Add user message
+            const userMessage = {
+                id: Date.now(),
+                sender: 'user',
+                text: message,
+                timestamp: new Date().toISOString()
+            };
+            
+            messages.push(userMessage);
+            renderMessage(userMessage);
+            
+            // Clear input
+            input.value = '';
+            input.style.height = 'auto';
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Save to database with error handling
+            try {
+                saveUserMessages(getCurrentUserId(), activeCompanion.id, messages);
+            } catch (error) {
+                console.error('Error saving messages:', error);
+            }
+            
+            // Simulate AI response
+            setTimeout(() => {
+                hideTypingIndicator();
+                const aiResponse = generateAIResponse(message);
+                const aiMessage = {
+                    id: Date.now() + 1,
+                    sender: 'companion',
+                    text: aiResponse,
+                    timestamp: new Date().toISOString()
+                };
+                
+                messages.push(aiMessage);
+                renderMessage(aiMessage);
+                
+                // Save AI response with error handling
+                try {
+                    saveUserMessages(getCurrentUserId(), activeCompanion.id, messages);
+                } catch (error) {
+                    console.error('Error saving AI response:', error);
+                }
+            }, 1000 + Math.random() * 2000);
+        }
+
+        function loadMessages() {
+            if (!activeCompanion || !currentUser) return;
+            
+            const key = `messages_${currentUser.id}_${activeCompanion.id}`;
+            const savedMessages = localStorage.getItem(key);
+            
+            if (savedMessages) {
+                messages[key] = JSON.parse(savedMessages);
+                renderMessages();
+            }
+        }
+
+        function saveMessages() {
+            if (!activeCompanion || !currentUser) return;
+            
+            const key = `messages_${currentUser.id}_${activeCompanion.id}`;
+            localStorage.setItem(key, JSON.stringify(messages[key]));
+        }
+
+        async function fetchAIResponse(message) {
+            showTypingIndicator();
+            
+            try {
+                const res = await fetch(`${API_URL}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('emiliana_token') || ''}`
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        companionId: activeCompanion.id,
+                        userId: currentUser.id
+                    })
+                });
+                
+                if (!res.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                const data = await res.json();
+                hideTypingIndicator();
+                
+                return data.response || generateAIResponse(message);
+                
+            } catch (error) {
+                hideTypingIndicator();
+                console.error('AI Response Error:', error);
+                return generateAIResponse(message);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('emiliana_user');
+            localStorage.removeItem('emiliana_token');
+            window.location.href = 'emiliana-landing.html';
+        }
+
+        function editCompanion(id) {
+            const companion = companions.find(c => c.id === id);
+            if (!companion) return;
+            
+            // Fill form with companion data
+            document.getElementById('companion-name').value = companion.name;
+            document.getElementById('companion-description').value = companion.description || '';
+            
+            // Set gender
+            document.querySelectorAll('.gender-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            const genderBtn = document.querySelector(`.gender-btn[data-gender="${companion.gender}"]`);
+            if (genderBtn) genderBtn.classList.add('selected');
+            
+            // Set personality
+            document.querySelectorAll('.personality-selector .gender-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            const personalityBtn = document.querySelector(`.personality-selector .gender-btn[data-personality="${companion.personality}"]`);
+            if (personalityBtn) personalityBtn.classList.add('selected');
+            
+            // Update modal
+            document.getElementById('companion-modal-title').textContent = 'Modifier le compagnon';
+            document.getElementById('companion-form-btn-text').textContent = 'Enregistrer les modifications';
+            
+            // Show modal
+            document.getElementById('companion-modal').classList.add('active');
+        }
+
+        function deleteCompanion(id) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce compagnon ?')) {
+                companions = companions.filter(c => c.id !== id);
+                saveCompanions();
+                renderCompanionsList();
+                
+                if (activeCompanion && activeCompanion.id === id) {
+                    activeCompanion = null;
+                    document.getElementById('welcome-screen').classList.remove('hidden');
+                    document.getElementById('chat-screen').classList.add('hidden');
+                }
+            }
+        }
+
+        function updateThemeColor(property, color) {
+            document.documentElement.style.setProperty(property, color);
+        }
+
+        function loadUserSettings() {
+            const settings = JSON.parse(localStorage.getItem('emiliana_user_settings') || '{}');
+            
+            if (settings.primaryColor) {
+                document.getElementById('primary-color').value = settings.primaryColor;
+                updateThemeColor('--primary-400', settings.primaryColor);
+            }
+            if (settings.secondaryColor) {
+                document.getElementById('secondary-color').value = settings.secondaryColor;
+                updateThemeColor('--accent-cyan', settings.secondaryColor);
+            }
+            if (settings.accentColor) {
+                document.getElementById('accent-color').value = settings.accentColor;
+                updateThemeColor('--primary-600', settings.accentColor);
+            }
+            if (settings.fontSize) {
+                document.getElementById('font-size').value = settings.fontSize;
+                updateFontSize(settings.fontSize);
+            }
+            if (settings.bubbleStyle) {
+                document.getElementById('bubble-style').value = settings.bubbleStyle;
+                updateBubbleStyle(settings.bubbleStyle);
+            }
+        }
+
+        function saveUserSettings() {
+            const settings = {
+                primaryColor: document.getElementById('primary-color')?.value,
+                secondaryColor: document.getElementById('secondary-color')?.value,
+                accentColor: document.getElementById('accent-color')?.value,
+                fontSize: document.getElementById('font-size')?.value,
+                bubbleStyle: document.getElementById('bubble-style')?.value,
+                soundEnabled: document.querySelector('input[type="checkbox"]:checked') !== null,
+                notificationsEnabled: true
+            };
+            
+            localStorage.setItem('emiliana_user_settings', JSON.stringify(settings));
+            showNotification('Paramètres enregistrés avec succès', 'success');
+        }
+
+        function resetTheme() {
+            const defaultColors = {
+                primary: '#6B72FF',
+                secondary: '#47C7B0',
+                accent: '#8E2DE2'
+            };
+            
+            document.getElementById('primary-color').value = defaultColors.primary;
+            document.getElementById('secondary-color').value = defaultColors.secondary;
+            document.getElementById('accent-color').value = defaultColors.accent;
+            
+            updateThemeColor('--primary-400', defaultColors.primary);
+            updateThemeColor('--accent-cyan', defaultColors.secondary);
+            updateThemeColor('--primary-600', defaultColors.accent);
+            
+            document.getElementById('font-size').value = 'medium';
+            document.getElementById('bubble-style').value = 'rounded';
+            
+            updateFontSize('medium');
+            updateBubbleStyle('rounded');
+            
+            localStorage.removeItem('emiliana_user_settings');
+            showNotification('Thème réinitialisé', 'success');
+        }
+
+        function updateFontSize(size) {
+            const root = document.documentElement;
+            const sizes = {
+                small: '14px',
+                medium: '16px',
+                large: '18px'
+            };
+            root.style.setProperty('--font-size-base', sizes[size] || sizes.medium);
+        }
+
+        function updateBubbleStyle(style) {
+            const messages = document.querySelectorAll('.message');
+            messages.forEach(msg => {
+                msg.classList.remove('style-rounded', 'style-square', 'style-minimal');
+                msg.classList.add(`style-${style}`);
+            });
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                background: ${type === 'success' ? 'var(--accent-green)' : type === 'error' ? 'var(--accent-red)' : 'var(--primary-400)'};
+                color: white;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Close modals on escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+            }
+        });
+    </script>
+</body>
+</html>

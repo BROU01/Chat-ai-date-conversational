@@ -1,0 +1,41 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Fonction utilitaire pour vérifier si l'utilisateur est admin
+    function isAdmin() {
+      return request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Règles pour la collection users
+    match /users/{userId} {
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // Règles pour la collection messages
+    match /messages/{messageId} {
+      allow read: if request.auth != null && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // Règles pour la collection companions
+    match /companions/{companionId} {
+      allow read: if request.auth != null && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null && (resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if request.auth != null && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // Règles pour les logs système (lecture seule pour admin)
+    match /system_logs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false; // Uniquement via le backend admin SDK
+    }
+  }
+}

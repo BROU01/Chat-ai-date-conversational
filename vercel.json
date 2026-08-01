@@ -1,0 +1,82 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "*.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "emiliana.css",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "package.json",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/admin",
+      "dest": "/emiliana-admin.html"
+    },
+    {
+      "src": "/app/admin",
+      "dest": "/emiliana-admin.html"
+    },
+    {
+      "src": "/chat",
+      "dest": "/emiliana-chat.html"
+    },
+    {
+      "src": "/app/chat",
+      "dest": "/emiliana-chat.html"
+    },
+    {
+      "src": "/login",
+      "dest": "/emiliana-login.html"
+    },
+    {
+      "src": "/app/login",
+      "dest": "/emiliana-login.html"
+    },
+    {
+      "src": "/about",
+      "dest": "/emiliana-about.html"
+    },
+    {
+      "src": "/app/about",
+      "dest": "/emiliana-about.html"
+    },
+    {
+      "src": "/landing",
+      "dest": "/emiliana-landing.html"
+    },
+    {
+      "src": "/",
+      "dest": "/emiliana-landing.html"
+    },
+    {
+      "src": "/users.json",
+      "status": 404
+    },
+    {
+      "src": "/messages.json",
+      "status": 404
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}

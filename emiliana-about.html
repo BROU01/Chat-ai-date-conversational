@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emiliana - À propos</title>
+    <link rel="stylesheet" href="emiliana.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="emiliana-landing.html" class="navbar-brand">
+                <div class="navbar-logo">E</div>
+                <span class="navbar-title">Emiliana</span>
+            </a>
+            <div class="navbar-nav">
+                <a href="emiliana-landing.html#features" class="navbar-link">Fonctionnalités</a>
+                <a href="emiliana-landing.html#companions" class="navbar-link">Types</a>
+                <a href="emiliana-about.html" class="navbar-link active">À propos</a>
+            </div>
+            <div class="navbar-actions">
+                <a href="emiliana-login.html" class="btn btn-ghost">Connexion</a>
+                <a href="emiliana-landing.html" class="btn btn-primary">Commencer</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- About Hero -->
+    <section class="hero" style="min-height: 60vh;">
+        <div class="hero-content" style="max-width: 800px; margin: 0 auto; text-align: center;">
+            <div class="hero-badge" style="margin-bottom: var(--space-xl);">
+                <i class="fas fa-heart"></i>
+                <span>À propos de nous</span>
+            </div>
+            <h1 class="hero-title">
+                Une nouvelle façon de <span class="text-gradient">communiquer</span>
+            </h1>
+            <p class="hero-description" style="font-size: 1.25rem;">
+                Emiliana est une plateforme de conversation IA innovante qui vous permet de créer 
+                et interagir avec des companions personnalisés, conçus pour vous accompagner au quotidien.
+            </p>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Ce qui rend Emiliana unique</h2>
+                <p class="section-subtitle">Une expérience de conversation unlike aucune autre</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-friends"></i>
+                    </div>
+                    <h3 class="feature-title">Compagnons Personnalisés</h3>
+                    <p class="feature-description">Créez jusqu'à 5 companions avec personalities uniques. Choisissez le genre, la personnalité et les attributs qui vous correspondent.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 class="feature-title">IA Avancée</h3>
+                    <p class="feature-description">Une intelligence artificielle puissante qui comprend le contexte et répond de manière naturelle et empathique.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Confidentialité</h3>
+                    <p class="feature-description">Vos conversations restent privées. Nous ne partageons jamais vos données avec des tiers.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3 class="feature-title">Disponible 24/7</h3>
+                    <p class="feature-description">Votre companion est toujours là quand vous avez besoin de parler, à tout moment du jour ou de la nuit.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Multi-plateforme</h3>
+                    <p class="feature-description">Accédez à vos conversations depuis votre ordinateur, tablette ou smartphone.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <h3 class="feature-title">Contrôle Total</h3>
+                    <p class="feature-description">Gérez vos companions, modifiez leurs paramètres ou supprimez-les à tout moment.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team / Values -->
+    <section class="companion-types">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Nos valeurs</h2>
+                <p class="section-subtitle">Ce qui guide chacune de nos décisions</p>
+            </div>
+            <div class="companions-grid" style="max-width: 800px;">
+                <div class="companion-type-card male">
+                    <div class="companion-type-icon">
+                        <i class="fas fa-hand-holding-heart"></i>
+                    </div>
+                    <h3 class="companion-type-name">Empathie</h3>
+                    <p class="companion-type-tags">Nous plaçons l'utilisateur au cœur de chaque décision</p>
+                </div>
+                <div class="companion-type-card female">
+                    <div class="companion-type-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h3 class="companion-type-name">Confiance</h3>
+                    <p class="companion-type-tags">La transparence et la sécurité sont notre priorité</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta">
+        <div class="container">
+            <div class="cta-card">
+                <h2 class="cta-title">Rejoignez l'aventure Emiliana</h2>
+                <p class="cta-description">Découvrez une nouvelle façon de communiquer avec l'intelligence artificielle</p>
+                <a href="emiliana-landing.html" class="btn btn-white btn-lg">
+                    <i class="fas fa-rocket"></i>
+                    Commencer maintenant
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Emiliana. Tous droits réservés.</p>
+            <div class="footer-links">
+                <a href="#">Confidentialité</a>
+                <a href="#">Conditions</a>
+                <a href="emiliana-landing.html">Accueil</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Check if user is logged in for navbar buttons
+        function checkAuth() {
+            const user = localStorage.getItem('emiliana_user');
+            if (user) {
+                const actions = document.querySelector('.navbar-actions');
+                actions.innerHTML = `
+                    <a href="emiliana-chat.html" class="btn btn-primary">Mon espace</a>
+                `;
+            }
+        }
+        
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        checkAuth();
+    </script>
+</body>
+</html>

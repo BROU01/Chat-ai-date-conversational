@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emiliana - Connexion</title>
+    <link rel="stylesheet" href="emiliana.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card animate-scale-in">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <div class="auth-logo-icon">E</div>
+                </div>
+                <h1 class="auth-logo-text">Emiliana</h1>
+                <p class="auth-subtitle">Connectez-vous pour accéder à votre compagnon IA</p>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Connexion
+                </button>
+                <button class="auth-tab" data-tab="register">
+                    <i class="fas fa-user-plus"></i>
+                    Inscription
+                </button>
+            </div>
+
+            <!-- Login Form -->
+            <div class="auth-form-content active" id="login-content">
+                <form class="auth-form" id="login-form">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-user"></i>
+                            Identifiant ou email
+                        </label>
+                        <input type="text" class="form-input" id="login-username" placeholder="Votre identifiant" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-lock"></i>
+                            Mot de passe
+                        </label>
+                        <div class="password-input-wrapper">
+                            <input type="password" class="form-input" id="login-password" placeholder="Votre mot de passe" required>
+                            <button type="button" class="password-toggle" id="pwd-toggle">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="remember-row">
+                        <input type="checkbox" class="form-checkbox" id="login-remember">
+                        <label for="login-remember">Se souvenir de moi</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Se connecter
+                    </button>
+                    
+                    <div class="auth-message" id="login-msg"></div>
+                </form>
+
+                <div class="social-divider">ou connectez-vous avec</div>
+                
+                <div class="social-buttons">
+                    <button type="button" class="social-btn" id="google-login">
+                        <i class="fab fa-google"></i>
+                        <span>Google</span>
+                    </button>
+                    <button type="button" class="social-btn" id="apple-login">
+                        <i class="fab fa-apple"></i>
+                        <span>Apple</span>
+                    </button>
+                    <button type="button" class="social-btn" id="facebook-login">
+                        <i class="fab fa-facebook-f"></i>
+                        <span>Facebook</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Register Form -->
+            <div class="auth-form-content" id="register-content">
+                <form class="auth-form" id="register-form">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-user"></i>
+                            Identifiant
+                        </label>
+                        <input type="text" class="form-input" id="reg-username" placeholder="Choisissez un identifiant" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-envelope"></i>
+                            Email
+                        </label>
+                        <input type="email" class="form-input" id="reg-email" placeholder="votre@email.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-lock"></i>
+                            Mot de passe
+                        </label>
+                        <div class="password-input-wrapper">
+                            <input type="password" class="form-input" id="reg-password" placeholder="Minimum 8 caractères" required>
+                            <button type="button" class="password-toggle" id="reg-pwd-toggle">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-lock"></i>
+                            Confirmer le mot de passe
+                        </label>
+                        <div class="password-input-wrapper">
+                            <input type="password" class="form-input" id="reg-confirm" placeholder="Confirmez le mot de passe" required>
+                            <button type="button" class="password-toggle" id="reg-conf-toggle">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="remember-row">
+                        <input type="checkbox" class="form-checkbox" id="reg-remember">
+                        <label for="reg-remember">Se souvenir de moi</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <i class="fas fa-user-plus"></i>
+                        Créer mon compte
+                    </button>
+                    
+                    <div class="auth-message" id="reg-msg"></div>
+                </form>
+
+                <div class="social-divider">ou inscrivez-vous avec</div>
+                
+                <div class="social-buttons">
+                    <button type="button" class="social-btn" id="google-register">
+                        <i class="fab fa-google"></i>
+                        <span>Google</span>
+                    </button>
+                    <button type="button" class="social-btn" id="apple-register">
+                        <i class="fab fa-apple"></i>
+                        <span>Apple</span>
+                    </button>
+                    <button type="button" class="social-btn" id="facebook-register">
+                        <i class="fab fa-facebook-f"></i>
+                        <span>Facebook</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="text-center" style="margin-top: var(--space-xl);">
+                <a href="emiliana-landing.html" class="btn btn-ghost btn-sm">
+                    <i class="fas fa-arrow-left"></i>
+                    Retour à l'accueil
+                </a>
+            </div>
+        </div>
+
+        <div class="auth-features" style="display: none;">
+            <div class="auth-feature">
+                <i class="fas fa-comment-dots"></i>
+                <span>Compagnon Emiliana</span>
+            </div>
+            <div class="auth-feature">
+                <i class="fas fa-user-check"></i>
+                <span>Connexion simplifiée</span>
+            </div>
+            <div class="auth-feature">
+                <i class="fas fa-shield-alt"></i>
+                <span>Accès sécurisé</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+
+        // Auth tabs
+        document.querySelectorAll('.auth-tab').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.auth-tab').forEach(tab => tab.classList.remove('active'));
+                document.querySelectorAll('.auth-form-content').forEach(content => content.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(`${btn.dataset.tab}-content`).classList.add('active');
+            });
+        });
+
+        // Password toggles
+        function setupPasswordToggle(toggleId, inputId) {
+            document.getElementById(toggleId).addEventListener('click', () => {
+                const input = document.getElementById(inputId);
+                const icon = document.getElementById(toggleId).querySelector('i');
+                input.type = input.type === 'password' ? 'text' : 'password';
+                icon.classList.toggle('fa-eye');
+                icon.classList.toggle('fa-eye-slash');
+            });
+        }
+
+        setupPasswordToggle('pwd-toggle', 'login-password');
+        setupPasswordToggle('reg-pwd-toggle', 'reg-password');
+        setupPasswordToggle('reg-conf-toggle', 'reg-confirm');
+
+        // Login form
+        document.getElementById('login-form').addEventListener('submit', async event => {
+            event.preventDefault();
+            const msgEl = document.getElementById('login-msg');
+            const email = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+
+            msgEl.textContent = 'Connexion en cours...';
+            msgEl.className = 'auth-message loading';
+
+            try {
+                // Utiliser Firebase Auth pour se connecter
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const idToken = await userCredential.user.getIdToken();
+
+                // Vérifier avec le backend
+                const res = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idToken })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    msgEl.textContent = 'Connexion réussie.';
+                    msgEl.className = 'auth-message success';
+                    localStorage.setItem('emiliana_token', idToken);
+                    localStorage.setItem('emiliana_user', JSON.stringify(data.user));
+                    setTimeout(() => window.location.href = 'emiliana-chat.html', 700);
+                } else {
+                    msgEl.textContent = data.message || 'Erreur de connexion';
+                    msgEl.className = 'auth-message error';
+                }
+            } catch (error) {
+                msgEl.textContent = error.message || 'Erreur de connexion';
+                msgEl.className = 'auth-message error';
+            }
+        });
+
+        // Register form
+        document.getElementById('register-form').addEventListener('submit', async event => {
+            event.preventDefault();
+            const msgEl = document.getElementById('reg-msg');
+            const username = document.getElementById('reg-username').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const confirm = document.getElementById('reg-confirm').value;
+
+            if (password !== confirm) {
+                msgEl.textContent = 'Les mots de passe ne correspondent pas';
+                msgEl.className = 'auth-message error';
+                return;
+            }
+
+            msgEl.textContent = 'Création du compte...';
+            msgEl.className = 'auth-message loading';
+
+            try {
+                const res = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    msgEl.textContent = 'Compte créé ! Redirection...';
+                    msgEl.className = 'auth-message success';
+                    
+                    // Auto-login après inscription
+                    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                    const idToken = await userCredential.user.getIdToken();
+                    localStorage.setItem('emiliana_token', idToken);
+                    localStorage.setItem('emiliana_user', JSON.stringify(data.user));
+                    
+                    setTimeout(() => window.location.href = 'emiliana-chat.html', 1000);
+                } else {
+                    msgEl.textContent = data.error || 'Erreur lors de l\'inscription';
+                    msgEl.className = 'auth-message error';
+                }
+            } catch (error) {
+                msgEl.textContent = 'Erreur serveur';
+                msgEl.className = 'auth-message error';
+            }
+        });
+
+        // Social login buttons
+        const setupSocialLogin = (btnId, provider) => {
+            const btn = document.getElementById(btnId);
+            if (btn) {
+                btn.addEventListener('click', async () => {
+                    const msgEl = document.getElementById('login-msg') || document.getElementById('reg-msg');
+                    msgEl.textContent = 'Authentification sociale...';
+                    msgEl.className = 'auth-message loading';
+                    
+                    try {
+                        const data = await socialLogin(provider);
+                        msgEl.textContent = 'Connexion réussie !';
+                        msgEl.className = 'auth-message success';
+                        setTimeout(() => window.location.href = 'emiliana-chat.html', 700);
+                    } catch (error) {
+                        console.error("Social login failed:", error);
+                        msgEl.textContent = error.message || 'Échec de la connexion sociale';
+                        msgEl.className = 'auth-message error';
+                    }
+                });
+            }
+        };
+
+        setupSocialLogin('google-login', 'google');
+        setupSocialLogin('apple-login', 'apple');
+        setupSocialLogin('facebook-login', 'facebook');
+        setupSocialLogin('google-register', 'google');
+        setupSocialLogin('apple-register', 'apple');
+        setupSocialLogin('facebook-register', 'facebook');
+            const msgEl = document.getElementById('reg-msg');
+            const password = document.getElementById('reg-password').value;
+            const confirm = document.getElementById('reg-confirm').value;
+
+            if (password !== confirm) {
+                msgEl.textContent = 'Les mots de passe ne correspondent pas';
+                msgEl.className = 'auth-message error';
+                return;
+            }
+
+            if (password.length < 8) {
+                msgEl.textContent = 'Le mot de passe doit faire au moins 8 caractères';
+                msgEl.className = 'auth-message error';
+                return;
+            }
+
+            msgEl.textContent = 'Création du compte...';
+            msgEl.className = 'auth-message loading';
+
+            try {
+                const res = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: document.getElementById('reg-username').value,
+                        email: document.getElementById('reg-email').value,
+                        password
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    msgEl.textContent = 'Compte créé. Vous pouvez vous connecter.';
+                    msgEl.className = 'auth-message success';
+                    setTimeout(() => {
+                        document.querySelector('[data-tab="login"]').click();
+                    }, 800);
+                } else {
+                    msgEl.textContent = data.error || 'Inscription impossible';
+                    msgEl.className = 'auth-message error';
+                }
+            } catch (error) {
+                msgEl.textContent = "Erreur lors de l'inscription";
+                msgEl.className = 'auth-message error';
+            }
+        });
+
+        // Social login handlers
+        function handleSocialLogin(provider, isRegister = false) {
+            const msgEl = document.getElementById(isRegister ? 'reg-msg' : 'login-msg');
+            
+            if (provider.toLowerCase() === 'google') {
+                msgEl.textContent = 'Redirection vers Google...';
+                msgEl.className = 'auth-message loading';
+                
+                // Simuler une vraie authentification Google avec profil réaliste
+                setTimeout(() => {
+                    // Noms réalistes pour la démo
+                    const firstNames = ['Marie', 'Pierre', 'Sophie', 'Thomas', 'Camille', 'Nicolas', 'Laura', 'David', 'Emma', 'Lucas'];
+                    const lastNames = ['Martin', 'Bernard', 'Dubois', 'Thomas', 'Robert', 'Richard', 'Petit', 'Durand', 'Leroy', 'Moreau'];
+                    
+                    const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+                    const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+                    const username = `${firstName.toLowerCase()}.${lastName.toLowerCase()}`;
+                    const email = `${username}@gmail.com`;
+                    
+                    const mockUser = {
+                        id: Date.now(),
+                        username: username,
+                        firstName: firstName,
+                        lastName: lastName,
+                        email: email,
+                        role: 'user',
+                        provider: 'google',
+                        avatar: `https://ui-avatars.com/api/?name=${firstName}+${lastName}&background=6B72FF&color=fff&size=100`,
+                        verified: true,
+                        createdAt: new Date().toISOString()
+                    };
+                    
+                    localStorage.setItem('emiliana_user', JSON.stringify(mockUser));
+                    localStorage.setItem('emiliana_token', 'google_token_' + Date.now());
+                    window.location.href = 'emiliana-chat.html';
+                }, 2000);
+            } else if (provider.toLowerCase() === 'apple') {
+                msgEl.textContent = 'Connexion avec Apple...';
+                msgEl.className = 'auth-message loading';
+                setTimeout(() => {
+                    msgEl.textContent = 'Connexion Apple bientôt disponible';
+                    msgEl.className = 'auth-message error';
+                }, 1500);
+            } else if (provider.toLowerCase() === 'facebook') {
+                msgEl.textContent = 'Connexion avec Facebook...';
+                msgEl.className = 'auth-message loading';
+                setTimeout(() => {
+                    msgEl.textContent = 'Connexion Facebook bientôt disponible';
+                    msgEl.className = 'auth-message error';
+                }, 1500);
+            }
+        }
+
+        document.getElementById('google-login').addEventListener('click', () => handleSocialLogin('Google'));
+        document.getElementById('apple-login').addEventListener('click', () => handleSocialLogin('Apple'));
+        document.getElementById('facebook-login').addEventListener('click', () => handleSocialLogin('Facebook'));
+        
+        document.getElementById('google-register').addEventListener('click', () => handleSocialLogin('Google', true));
+        document.getElementById('apple-register').addEventListener('click', () => handleSocialLogin('Apple', true));
+        document.getElementById('facebook-register').addEventListener('click', () => handleSocialLogin('Facebook', true));
+    </script>
+</body>
+</html>

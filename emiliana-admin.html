@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emiliana Pro Admin - Panneau de Contrôle</title>
+    <link rel="stylesheet" href="emiliana.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --admin-bg: #0f172a;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+        }
+
+        body {
+            background-color: var(--admin-bg);
+            color: #f8fafc;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .admin-wrapper {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: #1e293b;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo-box {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 1.5rem 0;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.05);
+            color: #f8fafc;
+        }
+
+        .nav-item.active {
+            background: rgba(139, 92, 246, 0.1);
+            color: #a78bfa;
+            border-left-color: #a78bfa;
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header.top-bar {
+            height: 64px;
+            background: #1e293b;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+        }
+
+        .content-area {
+            padding: 2rem;
+            flex: 1;
+        }
+
+        .section-view {
+            display: none;
+        }
+
+        .section-view.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* UI Components */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.875rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 1rem;
+            background: rgba(0,0,0,0.2);
+            color: #94a3b8;
+            font-size: 0.875rem;
+        }
+
+        .data-table td {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success { background: rgba(34, 197, 94, 0.1); color: #4ade80; }
+        .badge-warning { background: rgba(234, 179, 8, 0.1); color: #facc15; }
+        .badge-danger { background: rgba(239, 68, 68, 0.1); color: #f87171; }
+
+        .form-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            max-width: 800px;
+        }
+
+        .hidden { display: none !important; }
+
+        /* Login Screen Overlay */
+        #login-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--admin-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Login Screen -->
+    <div id="login-overlay">
+        <div class="form-card" style="width: 400px; text-align: center;">
+            <div class="logo-box" style="margin: 0 auto 1.5rem; width: 60px; height: 60px; font-size: 1.5rem;">E</div>
+            <h2 style="margin-bottom: 0.5rem;">Administration Pro</h2>
+            <p style="color: #94a3b8; margin-bottom: 2rem;">Accès réservé aux administrateurs</p>
+            
+            <form id="admin-login-form">
+                <div class="form-group" style="text-align: left;">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="admin-email" placeholder="admin@emiliana.com" required>
+                </div>
+                <div class="form-group" style="text-align: left; margin-top: 1rem;">
+                    <label class="form-label">Mot de passe</label>
+                    <input type="password" class="form-input" id="admin-password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 2rem;">
+                    <i class="fas fa-shield-alt"></i> Connexion sécurisée
+                </button>
+            </form>
+            <div id="login-msg" style="margin-top: 1rem; font-size: 0.875rem;"></div>
+        </div>
+    </div>
+
+    <!-- Admin Wrapper -->
+    <div class="admin-wrapper hidden" id="admin-app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-box">E</div>
+                <div style="font-weight: bold; font-size: 1.25rem;">Emiliana Pro</div>
+            </div>
+
+            <nav class="nav-menu">
+                <div class="nav-item active" data-view="dashboard">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Tableau de bord</span>
+                </div>
+                <div class="nav-item" data-view="users">
+                    <i class="fas fa-users"></i>
+                    <span>Utilisateurs</span>
+                </div>
+                <div class="nav-item" data-view="conversations">
+                    <i class="fas fa-comments"></i>
+                    <span>Conversations</span>
+                </div>
+                <div class="nav-item" data-view="bot-config">
+                    <i class="fas fa-robot"></i>
+                    <span>Configuration Bot</span>
+                </div>
+                <div class="nav-item" data-view="security">
+                    <i class="fas fa-shield-halved"></i>
+                    <span>Sécurité & Logs</span>
+                </div>
+                <div class="nav-item" data-view="ui-personalization">
+                    <i class="fas fa-palette"></i>
+                    <span>Personnalisation UI</span>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="btn btn-ghost btn-sm" style="width: 100%; justify-content: flex-start;" onclick="logout()">
+                    <i class="fas fa-sign-out-alt" style="margin-right: 0.5rem;"></i> Déconnexion
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div id="current-view-title" style="font-weight: 600; font-size: 1.125rem;">Tableau de bord</div>
+                <div class="user-meta" style="display: flex; align-items: center; gap: 1rem;">
+                    <span id="admin-display-name" style="font-size: 0.875rem; color: #94a3b8;">Admin</span>
+                    <div style="width: 32px; height: 32px; background: #334155; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-user-shield" style="font-size: 0.875rem;"></i>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                
+                <!-- Dashboard View -->
+                <section id="view-dashboard" class="section-view active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Utilisateurs totaux</div>
+                            <div class="stat-value" id="stat-total-users">0</div>
+                            <div style="color: #4ade80; font-size: 0.75rem;"><i class="fas fa-arrow-up"></i> +12% ce mois</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Messages envoyés</div>
+                            <div class="stat-value" id="stat-total-messages">0</div>
+                            <div style="color: #4ade80; font-size: 0.75rem;"><i class="fas fa-arrow-up"></i> +5% aujourd'hui</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Utilisateurs actifs (24h)</div>
+                            <div class="stat-value" id="stat-active-today">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Taux de satisfaction</div>
+                            <div class="stat-value">4.8/5</div>
+                            <div style="color: #94a3b8; font-size: 0.75rem;">Basé sur 1.2k retours</div>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+                        <div class="form-card" style="max-width: 100%;">
+                            <h3 style="margin-top: 0;">Activité des conversations</h3>
+                            <canvas id="usageChart" height="100"></canvas>
+                        </div>
+                        <div class="form-card" style="max-width: 100%;">
+                            <h3 style="margin-top: 0;">Répartition par modèle</h3>
+                            <canvas id="modelChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Users View -->
+                <section id="view-users" class="section-view">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
+                        <input type="text" class="form-input" placeholder="Rechercher un utilisateur..." style="width: 300px;">
+                        <button class="btn btn-primary btn-sm"><i class="fas fa-download"></i> Exporter CSV</button>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Utilisateur</th>
+                                <th>Email</th>
+                                <th>Rôle</th>
+                                <th>Messages</th>
+                                <th>Inscription</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-list">
+                            <!-- JS injected -->
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Bot Config View -->
+                <section id="view-bot-config" class="section-view">
+                    <div class="form-card">
+                        <h3>🤖 Identité & Comportement</h3>
+                        <form id="bot-config-form">
+                            <div class="form-group">
+                                <label class="form-label">Nom du Bot</label>
+                                <input type="text" class="form-input" id="cfg-bot-name" value="Emiliana">
+                            </div>
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label class="form-label">System Prompt Global</label>
+                                <textarea class="form-input" id="cfg-system-prompt" rows="8">Tu es Emiliana, un compagnon IA personnel francophone...</textarea>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                                <div class="form-group">
+                                    <label class="form-label">Ton par défaut</label>
+                                    <select class="form-input">
+                                        <option>Empathique</option>
+                                        <option>Professionnel</option>
+                                        <option>Amical</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Limite quotidienne (Global)</label>
+                                    <input type="number" class="form-input" value="200">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="margin-top: 2rem;">
+                                <i class="fas fa-save"></i> Enregistrer les modifications
+                            </button>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Security View -->
+                <section id="view-security" class="section-view">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="form-card" style="max-width: 100%;">
+                            <h3>🛡️ Blacklist IP</h3>
+                            <form id="add-blacklist-form" style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
+                                <input type="text" class="form-input" id="bl-ip" placeholder="Adresse IP" required>
+                                <input type="text" class="form-input" id="bl-reason" placeholder="Raison" required>
+                                <button type="submit" class="btn btn-primary btn-sm">Bannir</button>
+                            </form>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>IP</th>
+                                        <th>Raison</th>
+                                        <th>Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="blacklist-list"></tbody>
+                            </table>
+                        </div>
+                        <div class="form-card" style="max-width: 100%;">
+                            <h3>📋 Journal d'Audit Admin</h3>
+                            <div id="audit-logs" style="font-family: monospace; font-size: 0.75rem; color: #94a3b8; height: 400px; overflow-y: auto;">
+                                <!-- JS injected -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- UI Personalization View -->
+                <section id="view-ui-personalization" class="section-view">
+                    <div class="form-card">
+                        <h3>🎨 Apparence du Widget Chat</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                            <div>
+                                <div class="form-group">
+                                    <label class="form-label">Couleur Primaire</label>
+                                    <input type="color" class="form-input" style="height: 40px; padding: 2px;" value="#8b5cf6">
+                                </div>
+                                <div class="form-group" style="margin-top: 1rem;">
+                                    <label class="form-label">Position du widget</label>
+                                    <select class="form-input">
+                                        <option>Bas à droite</option>
+                                        <option>Bas à gauche</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="margin-top: 1rem;">
+                                    <label class="form-label">Branding</label>
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" checked> Masquer "Powered by Emiliana"
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="background: rgba(0,0,0,0.2); border-radius: 8px; padding: 1rem; border: 1px dashed var(--border-color);">
+                                <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 1rem;">Prévisualisation</div>
+                                <div style="width: 200px; background: white; border-radius: 12px; margin: 0 auto; box-shadow: 0 10px 15px rgba(0,0,0,0.3); overflow: hidden;">
+                                    <div style="height: 40px; background: #8b5cf6; padding: 0.5rem 1rem; color: white; display: flex; align-items: center; font-size: 0.875rem;">
+                                        Emiliana
+                                    </div>
+                                    <div style="height: 120px; padding: 1rem;">
+                                        <div style="background: #f1f5f9; width: 80%; height: 10px; border-radius: 4px; margin-bottom: 0.5rem;"></div>
+                                        <div style="background: #f1f5f9; width: 60%; height: 10px; border-radius: 4px;"></div>
+                                    </div>
+                                    <div style="height: 40px; border-top: 1px solid #e2e8f0; padding: 0.5rem; display: flex; gap: 0.5rem;">
+                                        <div style="flex: 1; background: #f1f5f9; border-radius: 4px;"></div>
+                                        <div style="width: 24px; background: #8b5cf6; border-radius: 4px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+
+        // View Switching
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const viewId = item.dataset.view;
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                document.querySelectorAll('.section-view').forEach(v => v.classList.remove('active'));
+                
+                item.classList.add('active');
+                document.getElementById(`view-${viewId}`).classList.add('active');
+                document.getElementById('current-view-title').textContent = item.querySelector('span').textContent;
+                
+                // Load data for specific view
+                if (viewId === 'users') loadUsers();
+                if (viewId === 'security') loadSecurityData();
+                if (viewId === 'dashboard') loadStats();
+            });
+        });
+
+        // Auth & App Logic
+        async function init() {
+            const token = localStorage.getItem('emiliana_token');
+            const user = JSON.parse(localStorage.getItem('emiliana_user') || 'null');
+
+            if (token && user && user.role === 'admin') {
+                showApp();
+            } else {
+                showLogin();
+            }
+        }
+
+        function showLogin() {
+            document.getElementById('login-overlay').classList.remove('hidden');
+            document.getElementById('admin-app').classList.add('hidden');
+        }
+
+        function showApp() {
+            document.getElementById('login-overlay').classList.add('hidden');
+            document.getElementById('admin-app').classList.remove('hidden');
+            document.getElementById('admin-display-name').textContent = JSON.parse(localStorage.getItem('emiliana_user')).username;
+            loadStats();
+            initCharts();
+        }
+
+        // Login Form
+        document.getElementById('admin-login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('admin-email').value;
+            const password = document.getElementById('admin-password').value;
+            const msg = document.getElementById('login-msg');
+
+            msg.textContent = 'Authentification...';
+            msg.style.color = '#94a3b8';
+
+            try {
+                // Firebase Login
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const idToken = await userCredential.user.getIdToken();
+
+                // Backend Verification
+                const res = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idToken })
+                });
+                const data = await res.json();
+
+                if (data.success && data.user.role === 'admin') {
+                    localStorage.setItem('emiliana_token', idToken);
+                    localStorage.setItem('emiliana_user', JSON.stringify(data.user));
+                    showApp();
+                } else {
+                    msg.textContent = 'Accès refusé. Rôle administrateur requis.';
+                    msg.style.color = '#f87171';
+                    auth.signOut();
+                }
+            } catch (error) {
+                msg.textContent = 'Identifiants incorrects ou erreur serveur.';
+                msg.style.color = '#f87171';
+            }
+        });
+
+        // Data Loading
+        async function loadStats() {
+            try {
+                const res = await fetch(`${API_URL}/admin/stats`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('emiliana_token')}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('stat-total-users').textContent = data.stats.totalUsers;
+                    document.getElementById('stat-total-messages').textContent = data.stats.totalMessages;
+                    document.getElementById('stat-active-today').textContent = data.stats.activeToday;
+                }
+            } catch (error) { console.error("Error loading stats:", error); }
+        }
+
+        async function loadUsers() {
+            try {
+                const res = await fetch(`${API_URL}/admin/users`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('emiliana_token')}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    const list = document.getElementById('users-list');
+                    list.innerHTML = data.users.map(u => `
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <div style="width: 32px; height: 32px; background: #334155; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">
+                                        ${u.username.charAt(0)}
+                                    </div>
+                                    <span>${u.username}</span>
+                                </div>
+                            </td>
+                            <td>${u.email}</td>
+                            <td><span class="badge ${u.role === 'admin' ? 'badge-warning' : 'badge-success'}">${u.role}</span></td>
+                            <td>${u.messagesToday || 0}</td>
+                            <td>${new Date(u.createdAt).toLocaleDateString()}</td>
+                            <td><span class="badge badge-success">Actif</span></td>
+                            <td>
+                                <button class="btn btn-ghost btn-sm" onclick="editUser('${u.uid}')"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-ghost btn-sm" style="color: #f87171;"><i class="fas fa-ban"></i></button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) { console.error("Error loading users:", error); }
+        }
+
+        async function loadSecurityData() {
+            try {
+                const [blRes, auditRes] = await Promise.all([
+                    fetch(`${API_URL}/admin/blacklist`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('emiliana_token')}` } }),
+                    fetch(`${API_URL}/admin/audit`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('emiliana_token')}` } })
+                ]);
+                
+                const blData = await blRes.json();
+                const auditData = await auditRes.json();
+
+                if (blData.success) {
+                    document.getElementById('blacklist-list').innerHTML = blData.blacklist.map(item => `
+                        <tr>
+                            <td>${item.ip}</td>
+                            <td>${item.reason}</td>
+                            <td>${new Date(item.timestamp).toLocaleDateString()}</td>
+                            <td><button class="btn btn-ghost btn-sm"><i class="fas fa-trash"></i></button></td>
+                        </tr>
+                    `).join('');
+                }
+
+                if (auditData.success) {
+                    document.getElementById('audit-logs').innerHTML = auditData.logs.map(log => `
+                        <div style="margin-bottom: 0.5rem;">
+                            <span style="color: #a78bfa;">[${new Date(log.timestamp).toLocaleString()}]</span> 
+                            <span style="color: #f8fafc;">${log.action}</span> 
+                            <span style="color: #64748b;">par ${log.adminId}</span>
+                            <div style="margin-left: 1rem; color: #475569;">${JSON.stringify(log.details)}</div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) { console.error("Error loading security data:", error); }
+        }
+
+        function initCharts() {
+            const ctxUsage = document.getElementById('usageChart').getContext('2d');
+            new Chart(ctxUsage, {
+                type: 'line',
+                data: {
+                    labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '23:59'],
+                    datasets: [{
+                        label: 'Conversations',
+                        data: [12, 5, 45, 120, 80, 150, 60],
+                        borderColor: '#8b5cf6',
+                        tension: 0.4,
+                        fill: true,
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            const ctxModel = document.getElementById('modelChart').getContext('2d');
+            new Chart(ctxModel, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Groq (Llama)', 'OpenRouter (GPT)', 'Local Fallback'],
+                    datasets: [{
+                        data: [65, 25, 10],
+                        backgroundColor: ['#8b5cf6', '#3b82f6', '#64748b'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8' } } }
+                }
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>
