@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Emiliana - Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="emiliana.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <!-- Firebase SDK -->
@@ -64,16 +65,44 @@
         <main class="chat-main" id="chat-main">
             <!-- Welcome Screen (shown when no companion selected) -->
             <div class="welcome-screen" id="welcome-screen">
-                <div class="welcome-content">
-                    <div class="welcome-icon text-gradient">
-                        <i class="fas fa-comments"></i>
+                <div class="w-[80%] max-w-2xl mx-auto">
+                    <h1 class="z-10 bg-gradient-to-r from-black via-pink-500 to-violet-800 inline-block text-transparent bg-clip-text font-normal text-5xl leading-tight">Hello there,
+                    </h1><br/>
+                    <h1 class="z-10 bg-gradient-to-r from-black via-pink-500 to-violet-800 inline-block text-transparent bg-clip-text font-normal text-5xl -mt-2 mb-2 leading-tight">How can I help you?</h1>
+
+                    <p class="text-neutral-500 leading-tight tracking-tight mb-6 text-lg">Use one of the most common prompts below <br />or use one of your own prompt to begin</p>
+
+                    <div class="flex w-full mb-6 gap-3 text-sm text-neutral-800">
+                        
+                        <div class="group relative grow border border-ccc shadow-sm hover:shadow-md hover:-translate-y-[1px] hover:bg-neutral-100/30 rounded-xl p-4 transition-all duration-300 cursor-pointer">Help me with an easy to make recipe of cheesecake with ingredients
+                            
+                            <svg class="absolute right-2 bottom-2 h-4 text-neutral-500 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 " xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 16 16"><g fill="none"><path d="M2 8a.75.75 0 0 1 .75-.75h8.787L8.25 4.309a.75.75 0 0 1 1-1.118L14 7.441a.75.75 0 0 1 0 1.118l-4.75 4.25a.75.75 0 1 1-1-1.118l3.287-2.941H2.75A.75.75 0 0 1 2 8z" fill="currentColor"></path></g></svg>
+                        </div>
+                        
+                        <div class="group relative grow border border-ccc shadow-sm hover:shadow-md hover:-translate-y-[1px] hover:bg-neutral-100/30  rounded-xl p-4 transition-all duration-300 cursor-pointer">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Id, officia!
+                        <svg class="absolute right-2 bottom-2 h-4 text-neutral-500 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 " xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 16 16"><g fill="none"><path d="M2 8a.75.75 0 0 1 .75-.75h8.787L8.25 4.309a.75.75 0 0 1 1-1.118L14 7.441a.75.75 0 0 1 0 1.118l-4.75 4.25a.75.75 0 1 1-1-1.118l3.287-2.941H2.75A.75.75 0 0 1 2 8z" fill="currentColor"></path></g></svg>
+                        </div>
+                        <div class="group relative grow border border-ccc shadow-sm hover:shadow-md hover:-translate-y-[1px] hover:bg-neutral-100/30  rounded-xl p-4 transition-all duration-300 cursor-pointer">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Id, officia!
+                        <svg class="absolute right-2 bottom-2 h-4 text-neutral-500 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 " xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 16 16"><g fill="none"><path d="M2 8a.75.75 0 0 1 .75-.75h8.787L8.25 4.309a.75.75 0 0 1 1-1.118L14 7.441a.75.75 0 0 1 0 1.118l-4.75 4.25a.75.75 0 1 1-1-1.118l3.287-2.941H2.75A.75.75 0 0 1 2 8z" fill="currentColor"></path></g></svg>
+                        </div>
                     </div>
-                    <h2>Bienvenue sur Emiliana</h2>
-                    <p>Sélectionnez un compagnon pour commencer à discuter ou créez-en un nouveau.</p>
-                    <button class="btn btn-primary" id="welcome-create-btn">
-                        <i class="fas fa-plus"></i>
-                        Créer un compagnon
-                    </button>
+
+                    <div class="bg-white h-28 rounded-2xl shadow-md border border-neutral-200 relative">
+                        
+                        <div class="flex">
+                            <textarea class="grow m-4 outline outline-0 focus:outline-0 active:border-transparent min-h-16" placeholder="Type your question here ..."></textarea>
+                        </div>
+                        
+                        <div class="flex gap-2 items-center absolute right-2 bottom-2">
+                            <div class="text-xs">0/4000</div>
+                            <div class="bg-neutral-700 rounded-full text-white w-8 h-8 p-2 "><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512">
+                                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="48" d="M112 244l144-144l144 144"></path>
+                                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="48" d="M256 120v292"></path>
+                              </svg>
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
