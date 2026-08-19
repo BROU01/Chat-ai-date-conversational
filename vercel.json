@@ -1,29 +1,32 @@
 {
   "version": 2,
-  "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/index.js" },
-    { "source": "/app/admin", "destination": "/emiliana-admin.html" },
-    { "source": "/admin", "destination": "/emiliana-admin.html" },
-    { "source": "/app/chat", "destination": "/emiliana-chat.html" },
-    { "source": "/chat", "destination": "/emiliana-chat.html" },
-    { "source": "/app/login", "destination": "/emiliana-login.html" },
-    { "source": "/login", "destination": "/emiliana-login.html" },
-    { "source": "/app/about", "destination": "/emiliana-about.html" },
-    { "source": "/about", "destination": "/emiliana-about.html" },
-    { "source": "/app/companions", "destination": "/emiliana-companions.html" },
-    { "source": "/compagnons", "destination": "/emiliana-companions.html" },
-    { "source": "/app/account", "destination": "/emiliana-account.html" },
-    { "source": "/compte", "destination": "/emiliana-account.html" },
-    { "source": "/landing", "destination": "/emiliana-landing.html" },
-    { "source": "/", "destination": "/emiliana-landing.html" }
+  "builds": [
+    { "src": "api/index.js", "use": "@vercel/node" },
+    { "src": "*.html", "use": "@vercel/static" },
+    { "src": "emiliana.css", "use": "@vercel/static" },
+    { "src": "package.json", "use": "@vercel/static" },
+    { "src": "assets/**", "use": "@vercel/static" },
+    { "src": "firebase-config.js", "use": "@vercel/static" }
   ],
-  "headers": [
-    {
-      "source": "/assets/(.*)",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
-    }
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/index.js" },
+    { "src": "/app/admin", "dest": "/emiliana-admin.html" },
+    { "src": "/admin", "dest": "/emiliana-admin.html" },
+    { "src": "/app/chat", "dest": "/emiliana-chat.html" },
+    { "src": "/chat", "dest": "/emiliana-chat.html" },
+    { "src": "/app/login", "dest": "/emiliana-login.html" },
+    { "src": "/login", "dest": "/emiliana-login.html" },
+    { "src": "/app/about", "dest": "/emiliana-about.html" },
+    { "src": "/about", "dest": "/emiliana-about.html" },
+    { "src": "/app/companions", "dest": "/emiliana-companions.html" },
+    { "src": "/compagnons", "dest": "/emiliana-companions.html" },
+    { "src": "/app/account", "dest": "/emiliana-account.html" },
+    { "src": "/compte", "dest": "/emiliana-account.html" },
+    { "src": "/landing", "dest": "/emiliana-landing.html" },
+    { "src": "/", "dest": "/emiliana-landing.html" },
+    { "src": "/users.json", "status": 404 },
+    { "src": "/messages.json", "status": 404 },
+    { "src": "/(.*)", "dest": "/$1" }
   ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  "env": { "NODE_ENV": "production" }
 }

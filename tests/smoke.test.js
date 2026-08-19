@@ -34,10 +34,9 @@ test('les nouvelles pages MPA et la source de vérité produit existent', () => 
 test('Vercel publie les assets et route l’API vers le handler serverless', () => {
   const vercel = JSON.parse(fs.readFileSync(path.join(root, 'vercel.json'), 'utf8'));
   const api = fs.readFileSync(path.join(root, 'api/index.js'), 'utf8');
-  assert.equal(Array.isArray(vercel.rewrites), true);
-  assert.equal(vercel.rewrites.some((rewrite) => rewrite.source === '/api/:path*' && rewrite.destination === '/api/index.js'), true);
-  assert.equal(vercel.rewrites.some((rewrite) => rewrite.source === '/' && rewrite.destination === '/emiliana-landing.html'), true);
-  assert.equal(vercel.headers.some((header) => header.source === '/assets/(.*)'), true);
+  assert.equal(vercel.builds.some((build) => build.src === 'api/index.js'), true);
+  assert.equal(vercel.builds.some((build) => build.src === 'assets/**'), true);
+  assert.equal(vercel.routes.some((route) => route.src === '/api/(.*)' && route.dest === '/api/index.js'), true);
   assert.match(api, /require\('\.\.\/src\/app'\)/);
 });
 
