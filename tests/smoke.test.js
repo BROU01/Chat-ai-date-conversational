@@ -56,6 +56,21 @@ test('la landing applique la direction spatiale et le motion system', () => {
   assert.match(app, /requestAnimationFrame/);
 });
 
+test('les vues disposent de contrôles mobiles et de règles responsive', () => {
+  const css = fs.readFileSync(path.join(root, 'emiliana.css'), 'utf8');
+  const chat = fs.readFileSync(path.join(root, 'emiliana-chat.html'), 'utf8');
+  const admin = fs.readFileSync(path.join(root, 'emiliana-admin.html'), 'utf8');
+  const app = fs.readFileSync(path.join(root, 'assets/app.js'), 'utf8');
+  const readme = fs.readFileSync(path.join(root, 'README.md'), 'utf8');
+  assert.match(css, /@media \(max-width: 620px\)/);
+  assert.match(css, /overflow-x: auto/);
+  assert.match(chat, /data-chat-rail-toggle/);
+  assert.match(admin, /data-cms-nav-toggle/);
+  assert.match(app, /chatRailButton/);
+  assert.match(app, /cmsNavButton/);
+  assert.match(readme, /git push origin main/);
+});
+
 test('le chat et le CMS respectent le périmètre fonctionnel', () => {
   const chat = fs.readFileSync(path.join(root, 'emiliana-chat.html'), 'utf8');
   const admin = fs.readFileSync(path.join(root, 'emiliana-admin.html'), 'utf8');

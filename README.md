@@ -59,9 +59,36 @@ La configuration Firebase client est publique par nature, mais les clés de four
 
 `npm test` exécute les smoke tests Node natifs. La suite vérifie la présence des écrans, le chargement Express et l’absence de l’ancien thème gradient. Avant livraison, il est recommandé d’exécuter également un test de bout en bout avec un projet Firebase de staging, un compte utilisateur non privilégié et un compte administrateur dédié.
 
-## Déploiement
+## Déploiement et mises à jour Vercel
 
-Le projet peut être déployé sur Vercel avec `server.js` comme fonction Node et les pages statiques comme assets. Les variables d’environnement doivent être déclarées dans l’environnement de production. Le domaine de production doit être ajouté aux domaines autorisés Firebase Auth et `CORS_ORIGIN` doit être limité aux origines réellement utilisées.
+Le projet est configuré pour Vercel avec `api/index.js` comme handler serverless Express, les pages HTML comme assets statiques et `assets/**` pour le contrôleur frontend et les médias. Le déploiement permanent est relié au dépôt GitHub `BROU01/Chat-ai-date-conversational` et à la branche `main`.
+
+Le processus recommandé pour chaque mise à jour est le suivant :
+
+```bash
+git pull origin main
+npm install
+npm test
+node --check assets/app.js
+node --check src/app.js
+git diff --check
+git add .
+git commit -m "feat: describe the change"
+git push origin main
+```
+
+Le push vers `main` déclenche le déploiement Vercel lorsque le projet est connecté à GitHub. Après quelques instants, vérifier l’URL de production et les contrôles suivants :
+
+```bash
+curl -I https://votre-domaine.vercel.app/
+curl -I https://votre-domaine.vercel.app/assets/app.js
+curl -I https://votre-domaine.vercel.app/assets/virelia-silver-surfer.jpg
+curl https://votre-domaine.vercel.app/api/health
+```
+
+Dans le tableau de bord Vercel, le projet se trouve sous **Deployments**. Un déploiement `Ready` doit correspondre au dernier commit de `main`. En cas de problème, ouvrir **Logs** pour la fonction serverless, puis utiliser **Instant Rollback** vers le déploiement précédent stable.
+
+Les variables d’environnement doivent être déclarées dans l’environnement **Production** de Vercel. Au minimum, configurer `FIREBASE_SERVICE_ACCOUNT` ou le trio `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`, ainsi que `GROQ_API_KEY` ou `OPENROUTER_API_KEY`. Le domaine de production doit être ajouté aux domaines autorisés Firebase Auth et `CORS_ORIGIN` doit être limité aux origines réellement utilisées. Après toute modification de variable, relancer un déploiement pour que la fonction serverless prenne la nouvelle configuration.
 
 ## Structure utile
 

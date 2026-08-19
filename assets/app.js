@@ -75,6 +75,12 @@
     const sidebar = $('.app-sidebar'); const menuButton = $('[data-sidebar-toggle]');
     menuButton?.addEventListener('click', () => sidebar?.classList.toggle('is-open'));
     $$('.app-sidebar a').forEach((link) => link.addEventListener('click', () => sidebar?.classList.remove('is-open')));
+    const chatRail = $('.chat-rail'); const chatRailButton = $('[data-chat-rail-toggle]');
+    chatRailButton?.addEventListener('click', () => { const open = chatRail?.classList.toggle('is-open'); chatRailButton.setAttribute('aria-expanded', String(Boolean(open))); });
+    $$('.chat-rail a').forEach((link) => link.addEventListener('click', () => { chatRail?.classList.remove('is-open'); chatRailButton?.setAttribute('aria-expanded', 'false'); }));
+    const cmsNav = $('.cms-nav'); const cmsNavButton = $('[data-cms-nav-toggle]');
+    cmsNavButton?.addEventListener('click', () => { const open = cmsNav?.classList.toggle('is-open'); cmsNavButton.setAttribute('aria-expanded', String(Boolean(open))); });
+    $$('.cms-nav button').forEach((button) => button.addEventListener('click', () => { cmsNav?.classList.remove('is-open'); cmsNavButton?.setAttribute('aria-expanded', 'false'); }));
     $$('.js-logout').forEach((button) => button.addEventListener('click', async () => {
       try { await api('/auth/logout', { method: 'POST' }); } catch { /* local cleanup is enough */ }
       clearSession(); window.location.replace('/');
