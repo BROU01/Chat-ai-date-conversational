@@ -45,7 +45,15 @@
     renderUserChip(); return true;
   }
 
+  function setupTheme() {
+    const saved = localStorage.getItem('virelia-theme');
+    const theme = saved || (window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.dataset.theme = theme;
+    $$('[data-theme-toggle]').forEach((button) => { button.textContent = theme === 'dark' ? 'Clair' : 'Sombre'; button.setAttribute('aria-pressed', String(theme === 'dark')); button.addEventListener('click', () => { const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = next; localStorage.setItem('virelia-theme', next); $$('[data-theme-toggle]').forEach((item) => { item.textContent = next === 'dark' ? 'Clair' : 'Sombre'; item.setAttribute('aria-pressed', String(next === 'dark')); }); }); });
+  }
+
   function setupGlobal() {
+    setupTheme();
     renderUserChip();
     const sidebar = $('.app-sidebar'); const menuButton = $('[data-sidebar-toggle]');
     menuButton?.addEventListener('click', () => sidebar?.classList.toggle('is-open'));
@@ -74,24 +82,30 @@
   }
 
   const companions = [
-    { type: 'bienveillant', name: 'Emiliana', role: 'Présence attentive', initial: 'E', description: 'Une conversation calme pour déposer ce qui compte.' },
-    { type: 'creatif', name: 'Milo', role: 'Élan créatif', initial: 'M', description: 'Des idées et des perspectives pour avancer autrement.' },
-    { type: 'mentor', name: 'Sacha', role: 'Regard structurant', initial: 'S', description: 'Un échange concret, sans pression ni jugement.' },
-    { type: 'complice', name: 'Nina', role: 'Complicité légère', initial: 'N', description: 'Une conversation vivante, simple et spontanée.' }
+    { type: 'simon', name: 'Simon', role: 'Ami bienveillant', initial: 'S', description: 'Une présence chaleureuse pour déposer ce qui compte, sans jugement.' },
+    { type: 'junior', name: 'Junior', role: 'Ami créatif', initial: 'J', description: 'Une énergie curieuse pour chercher des idées et ouvrir de nouvelles pistes.' },
+    { type: 'kevin', name: 'Kevin', role: 'Ami confident', initial: 'K', description: 'Un échange discret et profond pour prendre du recul en sécurité.' },
+    { type: 'ludmilla', name: 'Ludmilla', role: 'Mentor inspirant', initial: 'L', description: 'Un regard structurant pour transformer une intention en prochaine étape.' },
+    { type: 'annabella', name: 'Annabella', role: 'Complice', initial: 'A', description: 'Une conversation vivante, légère et attentive à votre rythme.' },
+    { type: 'lia', name: 'LIA', role: 'Présence attentive', initial: 'L', description: 'Le compagnon par défaut de VIRELIA pour commencer simplement.' }
   ];
 
   function setupChat() {
     if (!protectPage()) return;
-    const list = $('#companion-list'); const messages = $('#message-list'); const form = $('#chat-form'); const input = $('#chat-input'); const status = $('#chat-status'); const title = $('#chat-companion-name'); const role = $('#chat-companion-role'); const avatar = $('#chat-avatar');
+    const list = $('#companion-list'); const messages = $('#message-list'); const form = $('#chat-form'); const input = $('#chat-input'); const status = $('#chat-status'); const title = $('#chat-companion-name'); const role = $('#chat-companion-role'); const avatar = $('#chat-avatar'); const personalityType = $('#personality-type'); const characterTrait = $('#character-trait'); const adultCheck = $('#adult-check'); const quotaDisplay = $('#quota-display');
     if (!list || !messages || !form) return;
-    let selected = companions[0]; const history = [];
+    let selected = companions[5]; const history = [];
+    const syncMatureTraits = () => { $$('[data-mature]', characterTrait).forEach((option) => { option.hidden = !adultCheck?.checked; }); if (characterTrait?.selectedOptions[0]?.dataset.mature && !adultCheck?.checked) characterTrait.value = 'caring'; };
     function updateHeader() { title.textContent = selected.name; role.textContent = selected.role; avatar.textContent = selected.initial; }
     function renderCompanions() { list.textContent = ''; companions.forEach((companion) => { const button = document.createElement('button'); button.type = 'button'; button.className = `companion-item${companion.type === selected.type ? ' is-active' : ''}`; button.innerHTML = `<span class="avatar">${escape(companion.initial)}</span><span><strong>${escape(companion.name)}</strong><small>${escape(companion.role)}</small></span>`; button.addEventListener('click', () => { selected = companion; renderCompanions(); updateHeader(); renderWelcome(); }); list.appendChild(button); }); }
     function addMessage(kind, content, timestamp = new Date()) { const row = document.createElement('div'); row.className = `message-row ${kind}`; const avatarNode = document.createElement('span'); avatarNode.className = 'avatar avatar-sm'; avatarNode.textContent = kind === 'user' ? initials(getUser()?.username) : selected.initial; const wrap = document.createElement('div'); wrap.className = 'message-content-wrap'; const author = document.createElement('div'); author.className = 'message-author'; author.textContent = kind === 'user' ? 'Vous' : selected.name; const body = document.createElement('div'); body.className = 'message-content'; body.textContent = content; const time = document.createElement('div'); time.className = 'message-time'; time.textContent = displayDate(timestamp); wrap.append(author, body, time); row.append(avatarNode, wrap); messages.appendChild(row); messages.scrollTop = messages.scrollHeight; }
     function renderWelcome() { messages.textContent = ''; addMessage('assistant', `Bonjour, je suis ${selected.name}. ${selected.description}`); }
     async function loadHistory() { try { const result = await api('/chat/history?limit=30'); if (!result.messages?.length) return; messages.textContent = ''; result.messages.reverse().forEach((item) => { addMessage('user', item.userMessage, item.createdAt); addMessage('assistant', item.botResponse, item.createdAt); history.push({ role: 'user', content: item.userMessage }, { role: 'assistant', content: item.botResponse }); }); } catch { /* conversation remains usable */ } }
-    renderCompanions(); updateHeader(); renderWelcome(); loadHistory();
-    form.addEventListener('submit', async (event) => { event.preventDefault(); const text = input.value.trim(); if (!text) return; input.value = ''; input.disabled = true; $('button[type="submit"]', form).disabled = true; addMessage('user', text); history.push({ role: 'user', content: text }); status.textContent = 'Réponse en cours…'; try { const result = await api('/chat/message', { method: 'POST', body: JSON.stringify({ message: text, botType: selected.type, companionProfile: { name: selected.name, archetype: selected.role, expectations: selected.description }, conversationHistory: history.slice(-12) }) }); addMessage('assistant', result.response); history.push({ role: 'assistant', content: result.response }); status.textContent = result.messagesRemaining === undefined ? 'Votre espace de conversation' : `${result.messagesRemaining} message${result.messagesRemaining > 1 ? 's' : ''} restant${result.messagesRemaining > 1 ? 's' : ''} aujourd’hui`; } catch (error) { addMessage('assistant', error.status === 429 ? 'Votre quota quotidien est atteint. Revenez demain.' : 'Je rencontre un problème temporaire. Réessayez dans un instant.'); status.textContent = 'La réponse n’a pas pu être générée.'; } finally { input.disabled = false; $('button[type="submit"]', form).disabled = false; input.focus(); } });
+    renderCompanions(); updateHeader(); syncMatureTraits(); renderWelcome(); loadHistory();
+    adultCheck?.addEventListener('change', syncMatureTraits);
+    personalityType?.addEventListener('change', () => { status.textContent = `Personnalité : ${personalityType.selectedOptions[0].textContent}`; });
+    characterTrait?.addEventListener('change', () => { if (characterTrait.selectedOptions[0]?.dataset.mature && !adultCheck.checked) { characterTrait.value = 'caring'; notify('La confirmation 18+ est nécessaire pour ce trait.'); } });
+    form.addEventListener('submit', async (event) => { event.preventDefault(); const text = input.value.trim(); if (!text) return; input.value = ''; input.disabled = true; $('button[type="submit"]', form).disabled = true; addMessage('user', text); history.push({ role: 'user', content: text }); status.textContent = 'Réponse en cours…'; try { const result = await api('/chat/message', { method: 'POST', body: JSON.stringify({ message: text, botType: selected.type, personalityType: personalityType?.value || 'friend_kind', characterTrait: characterTrait?.value || 'caring', is18PlusAcknowledged: Boolean(adultCheck?.checked), companionProfile: { name: selected.name, archetype: selected.role, expectations: selected.description }, conversationHistory: history.slice(-12) }) }); addMessage('assistant', result.response); history.push({ role: 'assistant', content: result.response }); if (result.messagesRemaining !== undefined) { if (quotaDisplay) quotaDisplay.textContent = `${result.messagesRemaining} / 150`; status.textContent = `${result.messagesRemaining} message${result.messagesRemaining > 1 ? 's' : ''} restant${result.messagesRemaining > 1 ? 's' : ''} aujourd’hui`; } else status.textContent = 'Votre espace de conversation'; } catch (error) { addMessage('assistant', error.status === 429 ? 'Votre quota quotidien est atteint. Revenez demain.' : 'Je rencontre un problème temporaire. Réessayez dans un instant.'); status.textContent = 'La réponse n’a pas pu être générée.'; } finally { input.disabled = false; $('button[type="submit"]', form).disabled = false; input.focus(); } });
     input.addEventListener('keydown', (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); form.requestSubmit(); } });
     input.addEventListener('input', () => { input.style.height = 'auto'; input.style.height = `${Math.min(input.scrollHeight, 150)}px`; });
   }
@@ -108,7 +122,7 @@
     try { const [statsResult, usersResult] = await Promise.all([api('/admin/stats'), api('/admin/users?limit=100')]); const stats = statsResult.stats || {}; [['total-users', stats.totalUsers], ['total-messages', stats.totalMessages], ['total-conversations', stats.totalConversations], ['active-users', stats.activeUsers]].forEach(([id, value]) => { const node = $(`#${id}`); if (node) node.textContent = value ?? '—'; }); const health = $('#admin-health-time'); if (health) health.textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }); renderUsers(usersResult.users || []); } catch (error) { notify(error.message || 'Les données admin ne sont pas disponibles.'); renderUsers([]); }
   }
 
-  async function loadAdminConfig() { try { const result = await api('/admin/config'); const config = result.config || {}; const identity = config.botIdentity || {}; if ($('#setting-bot-name')) $('#setting-bot-name').value = identity.name || 'Emiliana'; if ($('#setting-description')) $('#setting-description').value = identity.description || ''; if ($('#system-prompt')) $('#system-prompt').value = identity.systemPrompt || ''; if ($('#setting-daily-limit')) $('#setting-daily-limit').value = config.quotas?.dailyLimit || 200; } catch { /* defaults remain visible */ } }
+  async function loadAdminConfig() { try { const result = await api('/admin/config'); const config = result.config || {}; const identity = config.botIdentity || {}; if ($('#setting-bot-name')) $('#setting-bot-name').value = identity.name || 'LIA'; if ($('#setting-description')) $('#setting-description').value = identity.description || ''; if ($('#system-prompt')) $('#system-prompt').value = identity.systemPrompt || ''; if ($('#setting-daily-limit')) $('#setting-daily-limit').value = config.quotas?.dailyLimit || 150; } catch { /* defaults remain visible */ } }
   async function loadAdminCompanions() {
     const node = $('#admin-companion-list'); if (!node) return;
     try {

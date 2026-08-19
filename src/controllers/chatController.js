@@ -1,12 +1,16 @@
 const aiService = require('../services/aiService');
 const firebaseService = require('../services/firebaseService');
 const logger = require('../utils/logger');
+const { PLANS } = require('../config/plans');
 const { z } = require('zod');
 
 // Schémas de validation pour le Chat
 const messageSchema = z.object({
     message: z.string().min(1).max(2000),
-    botType: z.enum(['bienveillant', 'creatif', 'mentor', 'complice']).optional().default('bienveillant'),
+    botType: z.string().max(40).optional().default('lia'),
+    personalityType: z.enum(['friend_kind', 'friend_creative', 'friend_confidant', 'mentor', 'partner_playful', 'partner_flirty']).optional().default('friend_kind'),
+    characterTrait: z.enum(['caring', 'witty', 'serene', 'passionate', 'mischievous', 'coquine', 'fontaine', 'intense']).optional().default('caring'),
+    is18PlusAcknowledged: z.boolean().optional().default(false),
     companionProfile: z.object({
         name: z.string().max(40).optional(),
         archetype: z.string().optional(),
@@ -23,12 +27,13 @@ const chatController = {
     async sendMessage(req, res, next) {
         try {
             // Validation des données entrantes
-            const { message, botType, companionProfile, conversationHistory } = messageSchema.parse(req.body);
+            const { message, botType, personalityType, characterTrait, is18PlusAcknowledged, companionProfile, conversationHistory } = messageSchema.parse(req.body);
+            if (['coquine', 'fontaine'].includes(characterTrait) && !is18PlusAcknowledged) return res.status(400).json({ success: false, error: 'adult_confirmation_required', message: 'La confirmation 18+ est nécessaire pour ce trait.' });
             const user = req.user;
 
             // Vérification des limites quotidiennes
             const userData = await firebaseService.getUserById(user.uid);
-            const DAILY_LIMIT = parseInt(process.env.DAILY_MESSAGE_LIMIT || '200');
+            const DAILY_LIMIT = parseInt(process.env.DAILY_MESSAGE_LIMIT || String(PLANS.free.dailyMessages), 10);
 
             if (userData.messagesToday >= DAILY_LIMIT && userData.role !== 'admin') {
                 logger.warn(`User ${user.uid} reached daily message limit`);
@@ -40,7 +45,7 @@ const chatController = {
             }
 
             // Normalisation du profil et génération de la réponse IA
-            const companion = aiService.normalizeCompanion(companionProfile, botType);
+            const companion = aiService.normalizeCompanion({ ...(companionProfile || {}), personalityType, characterTrait }, personalityType);
             const aiResult = await aiService.generateResponse(message, companion, conversationHistory);
 
             await Promise.all([
@@ -51,6 +56,8 @@ const chatController = {
                     provider: aiResult.provider,
                     companionName: companion.name,
                     companionArchetype: companion.archetypeName,
+                    personalityType,
+                    characterTrait,
                     timestamp: new Date().toISOString()
                 }),
                 firebaseService.incrementMessageCount(user.uid),

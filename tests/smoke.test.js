@@ -24,6 +24,13 @@ test('les pages ne contiennent pas l’ancien thème gradient', () => {
   assert.equal(css.includes('purple'), false);
 });
 
+test('les nouvelles pages MPA et la source de vérité produit existent', () => {
+  for (const page of ['emiliana-companions.html', 'emiliana-account.html', 'docs/PROMPT_GAP_ANALYSIS.md', 'docs/SKILLS_USED.md', 'src/config/plans.js', 'src/config/companions.js', 'assets/virelia-hero-editorial.jpg']) assert.equal(fs.existsSync(path.join(root, page)), true, page);
+  const landing = fs.readFileSync(path.join(root, 'emiliana-landing.html'), 'utf8');
+  assert.match(landing, /VIRELIA/);
+  assert.match(landing, /LIA/);
+});
+
 test('le chat et le CMS respectent le périmètre fonctionnel', () => {
   const chat = fs.readFileSync(path.join(root, 'emiliana-chat.html'), 'utf8');
   const admin = fs.readFileSync(path.join(root, 'emiliana-admin.html'), 'utf8');

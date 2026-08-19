@@ -8,7 +8,7 @@ Emiliana est une application de conversation avec des présences IA configurable
 
 Le serveur est construit avec **Node.js et Express**. Il sert les pages HTML statiques, applique les en-têtes de sécurité via Helmet, limite les requêtes avec `express-rate-limit`, valide les entrées avec Zod et expose les routes `/api/auth`, `/api/chat` et `/api/admin`.
 
-Le frontend reste volontairement léger : pages HTML accessibles, feuille de style partagée et contrôleur JavaScript commun dans `assets/app.js`. L’espace chat utilise une zone de lecture large, un rail de présences et un composeur texte unique ; aucune fonction audio, vidéo, upload ou glisser-déposer n’est incluse. L’authentification email et Google passe par Firebase Auth côté client, puis les tokens Firebase sont vérifiés par le backend avant d’autoriser l’accès à Firestore.
+Le frontend reste volontairement léger : pages HTML accessibles, feuille de style partagée et contrôleur JavaScript commun dans `assets/app.js`. La marque publique est **VIRELIA** et le compagnon générique est **LIA**. La landing utilise un hero photographique éditorial sans texte généré dans l’image. L’espace chat utilise une zone de lecture large, six compagnons, une sélection d’archétype/trait avec verrouillage 18+, un thème clair/sombre et un composeur texte unique ; aucune fonction audio, vidéo, upload ou glisser-déposer n’est incluse. L’authentification email et Google passe par Firebase Auth côté client, puis les tokens Firebase sont vérifiés par le backend avant d’autoriser l’accès à Firestore.
 
 La console `/admin` est organisée comme un CMS métier : aperçu, utilisateurs, compagnons, prompts système, conversations, sécurité, paramètres et journal d’audit. Les opérations de rôles, de configuration, de blocage IP, de lecture des conversations et de création de compagnons passent par des routes admin protégées.
 
@@ -51,6 +51,8 @@ La configuration Firebase client est publique par nature, mais les clés de four
 | `/chat` | Espace de conversation protégé côté client et API |
 | `/about` | Positionnement et limites d’usage |
 | `/admin` | CMS réservé aux administrateurs |
+| `/compagnons` | Galerie MPA des six compagnons |
+| `/compte` | Fondations profil, quotas et confidentialité |
 | `/api/health` | Contrôle de disponibilité |
 
 ## Contrôles de qualité
@@ -64,9 +66,14 @@ Le projet peut être déployé sur Vercel avec `server.js` comme fonction Node e
 ## Structure utile
 
 ```text
-assets/app.js                  Contrôleur frontend partagé, chat et CMS
-emiliana.css                  Système de design et responsive UI
+assets/app.js                  Contrôleur frontend partagé, chat, personnalité et CMS
+emiliana.css                  Système de design, hero et responsive UI
+assets/virelia-hero-editorial.jpg Hero photographique éditorial de la landing
+src/config/plans.js            Source de vérité Free/Premium
+src/config/companions.js       Six compagnons, archétypes et traits
 DESIGN_SYSTEM.md              Direction UI/UX et règles de composition
+docs/BRAND.md                  VIRELIA, LIA et règles de ton
+docs/PROMPT_GAP_ANALYSIS.md   Écarts et intégrations du prompt v3
 src/app.js                    Initialisation Express et sécurité
 src/controllers/               Contrôleurs HTTP
 src/services/                  IA et persistance Firebase

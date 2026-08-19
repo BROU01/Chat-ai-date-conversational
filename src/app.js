@@ -47,13 +47,15 @@ app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/chat', apiLimiter, chatRoutes);
 app.use('/api/admin', apiLimiter, adminRoutes);
 
-app.get('/api/health', (req, res) => res.json({ status: 'ok', service: 'emiliana', timestamp: new Date().toISOString() }));
+app.get('/api/health', (req, res) => res.json({ status: 'ok', service: 'virelia', companion: 'lia', timestamp: new Date().toISOString() }));
 app.use('/api', (req, res) => res.status(404).json({ success: false, message: 'Route API introuvable.' }));
 
 const pages = {
   '/': 'emiliana-landing.html', '/landing': 'emiliana-landing.html', '/login': 'emiliana-login.html', '/app/login': 'emiliana-login.html',
   '/chat': 'emiliana-chat.html', '/app/chat': 'emiliana-chat.html', '/admin': 'emiliana-admin.html', '/app/admin': 'emiliana-admin.html',
-  '/about': 'emiliana-about.html', '/app/about': 'emiliana-about.html'
+  '/about': 'emiliana-about.html', '/app/about': 'emiliana-about.html',
+  '/compagnons': 'emiliana-companions.html', '/app/companions': 'emiliana-companions.html',
+  '/compte': 'emiliana-account.html', '/app/account': 'emiliana-account.html'
 };
 Object.entries(pages).forEach(([route, file]) => app.get(route, (req, res) => res.sendFile(path.join(root, file))));
 app.use((req, res) => res.status(404).sendFile(path.join(root, 'emiliana-landing.html')));

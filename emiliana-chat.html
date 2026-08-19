@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Votre espace de conversation Emiliana.">
-  <title>Conversation — Emiliana</title>
+  <meta name="description" content="Votre espace de conversation VIRELIA.">
+  <title>Conversation — VIRELIA</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -14,7 +14,7 @@
 <body data-page="chat">
   <div class="app-shell">
     <aside class="app-sidebar">
-      <div class="sidebar-brand"><a class="brand" href="/" aria-label="Emiliana"><span class="brand-mark">e</span><span class="brand-name">Emiliana</span></a></div>
+      <div class="sidebar-brand"><a class="brand" href="/" aria-label="VIRELIA"><span class="brand-mark">v</span><span class="brand-name">VIRELIA</span></a></div>
       <div class="sidebar-section-label">Espace</div>
       <nav class="sidebar-nav" aria-label="Navigation de l’espace">
         <a href="/chat" aria-current="page"><span class="nav-icon" aria-hidden="true">◌</span> Conversation</a>
@@ -32,13 +32,13 @@
           <aside class="chat-rail" aria-label="Présences et conversations">
             <div class="chat-rail-header"><h2>Votre espace</h2><button class="btn btn-secondary btn-icon btn-small" type="button" aria-label="Nouvelle conversation">+</button></div>
             <p class="rail-caption">Présences</p><div id="companion-list" class="companion-list"></div>
-            <p class="rail-caption">Conversations récentes</p><div class="conversation-list"><a class="conversation-item is-active" href="#"><strong>Commencer une nouvelle conversation</strong><small>Maintenant</small></a><a class="conversation-item" href="#"><strong>Mettre de l’ordre dans mes pensées</strong><small>Hier</small></a></div>
+            <div class="personality-panel" aria-labelledby="personality-title"><p id="personality-title" class="rail-caption">Personnalité</p><div class="field"><label for="personality-type">Archétype</label><select id="personality-type"><option value="friend_kind">Ami bienveillant</option><option value="friend_creative">Ami créatif</option><option value="friend_confidant">Ami confident</option><option value="mentor">Mentor inspirant</option><option value="partner_playful">Complice</option><option value="partner_flirty">Flirt léger</option></select></div><div class="field"><label for="character-trait">Trait</label><select id="character-trait"><option value="caring">Attentionné·e</option><option value="witty">Vif·ve d’esprit</option><option value="serene">Serein·e</option><option value="passionate">Passionné·e</option><option value="mischievous">Espiègle</option><option value="coquine" data-mature="true" hidden>Coquin·e · 18+</option><option value="fontaine" data-mature="true" hidden>Expressif·ve · 18+</option><option value="intense">Intense</option></select></div><label class="check-row"><input id="adult-check" type="checkbox"> J’ai 18 ans ou plus</label></div><p class="rail-caption">Conversations récentes</p><div class="conversation-list"><a class="conversation-item is-active" href="#"><strong>Commencer une nouvelle conversation</strong><small>Maintenant</small></a><a class="conversation-item" href="#"><strong>Mettre de l’ordre dans mes pensées</strong><small>Hier</small></a></div>
           </aside>
           <section class="chat-main" aria-labelledby="chat-companion-name">
-            <header class="chat-main-header"><div class="chat-header-profile"><span id="chat-avatar" class="avatar avatar-lg">E</span><div><strong id="chat-companion-name">Emiliana</strong><span id="chat-companion-role">Présence attentive</span></div></div><div class="chat-header-actions"><span class="badge">En ligne</span><button class="btn btn-quiet btn-icon" type="button" aria-label="Options de conversation">•••</button></div></header>
+            <header class="chat-main-header"><div class="chat-header-profile"><span id="chat-avatar" class="avatar avatar-lg">E</span><div><strong id="chat-companion-name">LIA</strong><span id="chat-companion-role">Présence attentive</span></div></div><div class="chat-header-actions"><span class="badge">En ligne</span><button class="btn btn-quiet btn-small" type="button" data-theme-toggle>Thème</button><button class="btn btn-quiet btn-icon" type="button" aria-label="Options de conversation">•••</button></div></header>
             <div id="message-list" class="message-list" aria-live="polite"></div>
             <div id="chat-status" class="chat-status" aria-live="polite">Votre espace de conversation</div>
-            <div class="composer-wrap"><form id="chat-form" class="composer"><label class="sr-only" for="chat-input">Votre message</label><textarea id="chat-input" maxlength="2000" rows="1" placeholder="Écrire un message…" required></textarea><button class="btn btn-primary" type="submit">Envoyer</button></form><p class="composer-note">Emiliana peut se tromper. Vérifiez les informations importantes.</p></div>
+            <div class="composer-wrap"><form id="chat-form" class="composer"><label class="sr-only" for="chat-input">Votre message</label><textarea id="chat-input" maxlength="2000" rows="1" placeholder="Écrire un message…" required></textarea><button class="btn btn-primary" type="submit">Envoyer</button></form><p class="composer-note"><span id="quota-display">150 / 150</span> · LIA peut se tromper. Vérifiez les informations importantes.</p></div>
           </section>
         </div>
       </div>

@@ -136,7 +136,7 @@ const firebaseService = {
                     systemPrompt: ''
                 },
                 quotas: {
-                    dailyLimit: 200,
+                    dailyLimit: 150,
                     monthlyBudget: 50
                 },
                 ui: {

@@ -33,6 +33,14 @@ const companionArchetypes = {
     }
 };
 
+Object.assign(companionArchetypes, {
+    friend_kind: companionArchetypes.bienveillant,
+    friend_creative: companionArchetypes.creatif,
+    friend_confidant: companionArchetypes.bienveillant,
+    partner_playful: companionArchetypes.complice,
+    partner_flirty: companionArchetypes.complice
+});
+
 const buildSystemPrompt = (name, archetype, expectations, interests) => {
     const expectationsLine = expectations
         ? `L'utilisateur a confie ce qu'il attend de toi: ${expectations}`
@@ -147,17 +155,21 @@ const aiService = {
     },
 
     normalizeCompanion(rawProfile = {}, fallbackArchetype = 'bienveillant') {
-        const archetypeKey = companionArchetypes[rawProfile.archetype] ? rawProfile.archetype : fallbackArchetype;
+        const requestedKey = rawProfile.personalityType || rawProfile.archetype;
+        const archetypeKey = companionArchetypes[requestedKey] ? requestedKey : (companionArchetypes[fallbackArchetype] ? fallbackArchetype : 'bienveillant');
         const archetype = companionArchetypes[archetypeKey];
-        const name = rawProfile.name || 'Lia';
+        const name = rawProfile.name || 'LIA';
         const expectations = rawProfile.expectations || '';
         const interests = rawProfile.interests || '';
+        const trait = rawProfile.characterTrait || 'caring';
+        const traitLine = `Trait choisi par l'utilisateur : ${trait}. Ne force jamais un registre adulte et respecte les garde-fous de la plateforme.`;
 
         return {
             name,
             archetypeKey,
             archetypeName: archetype.name,
-            systemPrompt: buildSystemPrompt(name, archetype, expectations, interests)
+            characterTrait: trait,
+            systemPrompt: `${buildSystemPrompt(name, archetype, expectations, interests)}\n\n### Nuance de caractère\n${traitLine}`
         };
     }
 };
