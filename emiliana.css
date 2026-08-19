@@ -522,3 +522,17 @@ html { background: var(--space-black); }
 .space-admin .btn-quiet { color: var(--space-muted); }
 .space-admin .notice { border-color: rgba(217,155,82,.32); background: rgba(217,155,82,.1); color: #e9b16b; }
 .space-admin .toast { border-color: var(--space-line-strong); background: #07111a; color: var(--space-silver-bright); }
+
+/* Navigation affordances */
+.space-site .nav { gap: 4px; }
+.space-site .nav a { position: relative; display: inline-flex; align-items: center; min-height: 34px; padding: 0 11px; border: 1px solid transparent; border-radius: 9px; color: rgba(232, 241, 245, .78); font-size: 12px; transition: color .18s ease, background .18s ease, border-color .18s ease; }
+.space-site .nav a::after { content: ""; position: absolute; right: 11px; bottom: 5px; left: 11px; height: 1px; background: var(--space-cyan); opacity: .45; transform: scaleX(.24); transform-origin: left; transition: transform .18s ease, opacity .18s ease; }
+.space-site .nav a:hover, .space-site .nav a:focus-visible { border-color: rgba(145, 215, 230, .28); background: rgba(145, 215, 230, .09); color: #fff; }
+.space-site .nav a:hover::after, .space-site .nav a:focus-visible::after { opacity: .95; transform: scaleX(1); }
+.space-site .brand-tag { position: relative; padding-left: 10px; }
+.space-site .brand-tag::before { content: ""; position: absolute; left: 0; top: 50%; width: 3px; height: 3px; border-radius: 50%; background: var(--space-cyan); box-shadow: 0 0 8px var(--space-cyan); transform: translateY(-50%); }
+.space-site .btn-login { min-height: 34px; padding: 0 12px; border: 1px solid rgba(225, 237, 242, .34); border-radius: 9px; background: rgba(255,255,255,.06); color: rgba(245, 250, 252, .9); font-size: 12px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.space-site .btn-login span { color: var(--space-cyan); font-size: 13px; transition: transform .18s ease; }
+.space-site .btn-login:hover, .space-site .btn-login:focus-visible { border-color: rgba(225, 237, 242, .72); background: rgba(255,255,255,.12); color: #fff; }
+.space-site .btn-login:hover span, .space-site .btn-login:focus-visible span { transform: translate(2px, -2px); }
+@media (max-width: 580px) { .space-site .btn-login { min-height: 32px; padding-inline: 9px; } .space-site .btn-login span { display: none; } }

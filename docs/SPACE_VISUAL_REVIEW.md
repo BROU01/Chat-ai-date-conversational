@@ -13,3 +13,11 @@ Capture CMS : `/home/ubuntu/screenshots/localhost_2026-08-19_15-01-41_4736.webp`
 Après rechargement, le hero reste conforme : image pleine fenêtre, copie blanche à gauche, navigation glass et CTA lisibles. La capture annotée du scroll assombrit visuellement les zones non interactives ; le contrôle DOM suivant servira de référence pour les couleurs calculées plutôt que l’overlay de capture.
 
 Capture hero finale : `/home/ubuntu/screenshots/localhost_2026-08-19_15-02-43_1522.webp`.
+
+## Revue corrective
+
+Le contrôle DOM confirme que les animations sont effectivement actives : avant défilement, 1 élément reveal sur 14 est visible et l’image hero est à `matrix(..., translateY=0)`. Après un défilement de 1155 px, 6 éléments reveal sont visibles et la matrice de l’image devient `matrix(1.08, 0, 0, 1.08, 0, 138.6)`, ce qui confirme la parallaxe.
+
+Le header expose bien des éléments HTML sémantiques : les sections sont des liens `href="#approche"`, `href="#compagnons"`, `/about`, le bouton de connexion est un lien `/login` et l’action principale est un lien `/login?mode=register`. Le problème est donc principalement visuel : les liens et l’action de connexion doivent recevoir des affordances plus fortes pour ne pas se confondre avec le texte du verre.
+
+Le correctif de navigation est visible dans le DOM et les styles calculés : les trois liens de section disposent d’un padding, d’un état de fond/bordure au survol et d’un soulignement cyan progressif ; `Se connecter` est désormais un bouton glass avec fond translucide, bordure et hauteur de contrôle de 34 px. Le libellé du hero est devenu `VIRELIA · conversation IA personnalisable`, ce qui sépare clairement la marque du positionnement.
