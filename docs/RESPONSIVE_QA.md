@@ -11,3 +11,9 @@ Les prochaines vérifications portent sur la console CMS mobile et sur les contr
 La capture de `/admin` en 390 × 844 redirige également vers la connexion sans session, ce qui confirme que la protection de la route s’applique avant le rendu CMS. Le contrôle visuel authentifié devra être réalisé avec un compte admin Firebase de staging.
 
 La landing desktop en 1440 × 900 conserve la composition éditoriale : navigation lisible dans la barre translucide, typographie Fraunces dominante, actions hiérarchisées et Silver Surfer utilisé comme point focal sans gradient violet ni esthétique SaaS générique.
+
+## Publication
+
+Le commit `54ce129` (`feat: finaliser la responsivite du produit`) a été poussé sur `main`. Vercel sert le nouveau frontend : la landing, les huit routes MPA contrôlées, `assets/app.js` et l’image Silver Surfer répondent en HTTP 200. Les marqueurs distants `chatRailButton` et `data-cms-nav-toggle` sont présents après déploiement.
+
+`/api/health` répond en HTTP 503 tant que les variables Firebase serveur ne sont pas configurées dans l’environnement Production Vercel. Ce résultat est cohérent avec le comportement résilient documenté dans `docs/VERCEL_INCIDENT.md` ; il ne signale pas une panne de rendu public.
