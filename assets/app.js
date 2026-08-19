@@ -52,8 +52,25 @@
     $$('[data-theme-toggle]').forEach((button) => { button.textContent = theme === 'dark' ? 'Clair' : 'Sombre'; button.setAttribute('aria-pressed', String(theme === 'dark')); button.addEventListener('click', () => { const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = next; localStorage.setItem('virelia-theme', next); $$('[data-theme-toggle]').forEach((item) => { item.textContent = next === 'dark' ? 'Clair' : 'Sombre'; item.setAttribute('aria-pressed', String(next === 'dark')); }); }); });
   }
 
+  function setupMotion() {
+    const revealNodes = $$('[data-reveal]');
+    if (!revealNodes.length) return;
+    revealNodes.filter((node) => node.dataset.reveal === 'card').forEach((node, index) => { node.style.setProperty('--reveal-index', String(index % 3)); });
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (reduced || !('IntersectionObserver' in window)) { revealNodes.forEach((node) => node.classList.add('is-visible')); return; }
+    const observer = new IntersectionObserver((entries, instance) => { entries.forEach((entry) => { if (entry.isIntersecting) { entry.target.classList.add('is-visible'); instance.unobserve(entry.target); } }); }, { threshold: 0.14, rootMargin: '0px 0px -8% 0px' });
+    revealNodes.forEach((node) => observer.observe(node));
+    const parallaxNodes = $$('[data-parallax]');
+    if (!parallaxNodes.length) return;
+    let ticking = false;
+    const updateParallax = () => { const scrollY = window.scrollY; parallaxNodes.forEach((node) => { const speed = Number(node.dataset.parallax) || 0; const rect = node.parentElement?.getBoundingClientRect(); const offset = rect ? (rect.top + rect.height / 2 - window.innerHeight / 2) * speed : scrollY * speed; node.style.transform = `translate3d(0, ${offset * -1}px, 0) scale(1.08)`; }); ticking = false; };
+    const onScroll = () => { if (!ticking) { window.requestAnimationFrame(updateParallax); ticking = true; } };
+    window.addEventListener('scroll', onScroll, { passive: true }); updateParallax();
+  }
+
   function setupGlobal() {
     setupTheme();
+    setupMotion();
     renderUserChip();
     const sidebar = $('.app-sidebar'); const menuButton = $('[data-sidebar-toggle]');
     menuButton?.addEventListener('click', () => sidebar?.classList.toggle('is-open'));

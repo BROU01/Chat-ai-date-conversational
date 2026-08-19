@@ -4,30 +4,40 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="VIRELIA est un espace de conversation avec des compagnons IA personnalisables, attentifs et respectueux.">
-  <title>VIRELIA — Une conversation qui prend le temps</title>
+  <title>VIRELIA — Parler librement</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500,600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/emiliana.css">
   <script defer src="/assets/app.js"></script>
 </head>
-<body data-page="landing">
+<body data-page="landing" class="space-site">
   <a class="skip-link" href="#main">Aller au contenu</a>
-  <header class="site-header">
+  <header class="site-header site-header-space">
     <div class="container header-inner">
-      <a class="brand" href="/" aria-label="VIRELIA, accueil"><span class="brand-mark">v</span><span class="brand-name">VIRELIA</span><span class="brand-tag">conversation attentive</span></a>
+      <a class="brand brand-space" href="/" aria-label="VIRELIA, accueil"><span class="brand-mark" aria-hidden="true">v</span><span class="brand-name">VIRELIA</span><span class="brand-tag">conversation attentive</span></a>
       <nav class="nav" aria-label="Navigation principale"><a href="#approche">Notre approche</a><a href="#compagnons">Compagnons</a><a href="/about">À propos</a></nav>
       <div class="header-actions"><a class="btn btn-quiet" href="/login">Se connecter</a><a class="btn btn-primary btn-small" href="/login?mode=register">Commencer</a></div>
     </div>
   </header>
   <main id="main">
-    <section class="hero hero-with-image"><div class="container hero-grid"><div class="hero-copy"><p class="eyebrow">VIRELIA · espace de conversation</p><h1 class="display">Parler librement, sans devoir jouer un rôle.</h1><p class="lede">VIRELIA vous donne accès à des compagnons IA personnalisables, conçus pour écouter, réfléchir et avancer avec vous sans prendre toute la place.</p><div class="hero-actions"><a class="btn btn-primary" href="/login?mode=register">Ouvrir mon espace</a><a class="btn btn-secondary" href="#approche">Découvrir l’approche</a></div><p class="hero-note">LIA est le compagnon par défaut. Vous choisissez ensuite le ton, le caractère et le rythme qui vous conviennent.</p></div><figure class="hero-photo"><img src="/assets/virelia-hero-editorial.jpg" alt="Personne assise à un bureau dans une lumière douce, écrivant près d’un téléphone et d’un carnet"><figcaption>Un espace pour prendre le temps de formuler ce qui compte.</figcaption></figure></div></section>
-    <section class="section section-muted" id="approche"><div class="container"><div class="section-heading"><p class="eyebrow">Une approche simple</p><h2>Moins de bruit. Plus de présence.</h2><p>Le produit est conçu autour de la qualité de l’échange, pas autour d’une accumulation de fonctionnalités décoratives.</p></div><div class="feature-grid"><article class="feature-card"><span class="feature-number">01</span><h3>Une présence ajustée</h3><p>Choisissez une manière d’échanger qui correspond à votre moment : écoute, créativité, structure ou légèreté.</p></article><article class="feature-card"><span class="feature-number">02</span><h3>Une conversation lisible</h3><p>Un espace large, un composeur texte simple et une hiérarchie conçue pour laisser la parole occuper la place essentielle.</p></article><article class="feature-card"><span class="feature-number">03</span><h3>Un cadre respectueux</h3><p>Des limites claires, une gestion responsable des données et un ton qui ne prétend pas remplacer l’humain.</p></article></div></div></section>
-    <section class="section" id="compagnons"><div class="container"><div class="section-heading"><p class="eyebrow">Six façons d’échanger</p><h2>Un compagnon ne devrait pas vous enfermer dans un personnage.</h2><p>Activez jusqu’à deux compagnons avec le plan Gratuit, puis choisissez l’archétype et le trait qui correspondent à votre intention du moment.</p></div><div class="companion-name-grid"><span>Simon · ami bienveillant</span><span>Junior · ami créatif</span><span>Kevin · ami confident</span><span>Ludmilla · mentor inspirant</span><span>Annabella · complice</span><span>LIA · présence attentive</span></div><div class="plan-note"><strong>Plan Gratuit</strong><span>150 messages sur 24 h glissantes · 2 compagnons actifs · aucune fonction audio, vidéo ou fichier</span></div></div></section>
-    <section class="section"><div class="container"><div class="quote"><p>« Je n’avais pas besoin d’une réponse parfaite. J’avais besoin de pouvoir commencer à parler. »</p><cite>Une expérience pensée pour les moments ordinaires comme pour les jours plus lourds.</cite></div></div></section>
-    <section class="section section-muted"><div class="container cta-row"><div><p class="eyebrow">Votre espace vous attend</p><h2>Commencer doucement suffit.</h2></div><a class="btn btn-primary" href="/login?mode=register">Créer un compte</a></div></section>
+    <section class="hero hero-space" aria-labelledby="hero-title">
+      <div class="hero-space-media" aria-hidden="true"><img src="/assets/virelia-silver-surfer.jpg" alt="" data-parallax="0.12"><div class="hero-space-vignette"></div><div class="hero-space-grain"></div></div>
+      <div class="hero-space-content container" data-reveal="hero">
+        <p class="eyebrow eyebrow-light">VIRELIA · espace de conversation</p>
+        <h1 id="hero-title" class="display display-space">Parler librement,<br><em>sans jouer un rôle.</em></h1>
+        <p class="lede lede-space">Une présence IA personnalisable pour déposer ce qui compte, réfléchir avec plus de clarté et avancer à votre rythme.</p>
+        <div class="hero-actions"><a class="btn btn-primary btn-glow" href="/login?mode=register">Ouvrir mon espace <span aria-hidden="true">↗</span></a><a class="btn btn-glass" href="#approche">Découvrir l’approche</a></div>
+        <p class="hero-note hero-note-space"><span class="signal-dot" aria-hidden="true"></span>LIA est le compagnon par défaut · texte uniquement · 150 messages offerts / 24 h</p>
+      </div>
+      <a class="scroll-cue" href="#approche" aria-label="Découvrir la suite"><span>Découvrir</span><span class="scroll-line" aria-hidden="true"></span></a>
+    </section>
+    <section class="space-section space-section-light" id="approche" data-reveal="section"><div class="container"><div class="space-section-intro"><p class="eyebrow">Une approche simple</p><h2>Moins de bruit.<br><em>Plus de présence.</em></h2><p>VIRELIA ne cherche pas à remplir votre écran. Il construit un cadre précis pour que la conversation reste au centre.</p></div><div class="feature-grid space-feature-grid"><article class="feature-card space-card" data-reveal="card"><span class="feature-number">01</span><h3>Une présence ajustée</h3><p>Choisissez Simon, Junior, Kevin, Ludmilla, Annabella ou LIA, puis donnez le ton qui correspond à votre moment.</p></article><article class="feature-card space-card" data-reveal="card"><span class="feature-number">02</span><h3>Une conversation lisible</h3><p>Un espace large, un composeur texte simple et une hiérarchie qui laisse la parole occuper la place essentielle.</p></article><article class="feature-card space-card" data-reveal="card"><span class="feature-number">03</span><h3>Un cadre respectueux</h3><p>Des limites lisibles, une gestion responsable des données et aucune promesse de remplacer les relations humaines.</p></article></div></div></section>
+    <section class="space-section space-section-dark" id="compagnons" data-reveal="section"><div class="container"><div class="space-section-intro space-section-intro-dark"><p class="eyebrow eyebrow-light">Six façons d’échanger</p><h2>Un compagnon qui s’adapte.<br><em>Pas un personnage à subir.</em></h2><p>Activez jusqu’à deux compagnons avec le plan Gratuit. Le choix de l’archétype et du trait reste entre vos mains.</p></div><div class="companion-name-grid space-companion-grid"><span data-reveal="card">Simon <small>Ami bienveillant</small></span><span data-reveal="card">Junior <small>Ami créatif</small></span><span data-reveal="card">Kevin <small>Ami confident</small></span><span data-reveal="card">Ludmilla <small>Mentor inspirant</small></span><span data-reveal="card">Annabella <small>Complice</small></span><span data-reveal="card">LIA <small>Présence attentive</small></span></div><div class="plan-note plan-note-dark"><strong>Plan Gratuit</strong><span>150 messages sur 24 h glissantes · 2 compagnons actifs · texte uniquement</span></div></div></section>
+    <section class="space-section space-section-light" data-reveal="section"><div class="container"><div class="quote quote-space"><p>« Je n’avais pas besoin d’une réponse parfaite. J’avais besoin de pouvoir commencer à parler. »</p><cite>Une expérience pensée pour les moments ordinaires comme pour les jours plus lourds.</cite></div></div></section>
+    <section class="space-section space-cta" data-reveal="section"><div class="container cta-row"><div><p class="eyebrow eyebrow-light">Votre espace vous attend</p><h2>Commencer doucement suffit.</h2></div><a class="btn btn-primary btn-glow" href="/login?mode=register">Créer un compte <span aria-hidden="true">↗</span></a></div></section>
   </main>
-  <footer class="footer"><div class="container footer-inner"><span>© 2026 VIRELIA</span><span><a href="/about">À propos</a> · <a href="/login">Accéder à mon espace</a></span></div></footer>
+  <footer class="footer footer-space"><div class="container footer-inner"><span>© 2026 VIRELIA</span><span><a href="/about">À propos</a> · <a href="/login">Accéder à mon espace</a></span></div></footer>
   <div id="toast" class="toast" hidden role="status"></div>
 </body>
 </html>

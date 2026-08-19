@@ -1,32 +1,39 @@
-# Direction UI/UX — Emiliana v2
+# Direction UI/UX — VIRELIA Space
 
-## Diagnostic
+## Intention
 
-La première refonte a amélioré la sobriété mais reste trop proche d’un layout marketing générique. Le chat est trop étroit, la navigation est trop présente par rapport à la conversation, et l’administration ressemble à une page de statistiques plutôt qu’à un outil opérateur.
+VIRELIA adopte une direction **spatiale éditoriale** construite autour du visuel fourni du Surfer d’argent : noir stellaire, bleu nuit, chrome froid, blanc lunaire et une pointe de cyan orbital. L’image porte l’émotion ; l’interface reste précise, silencieuse et lisible.
 
-Les fichiers nommés par l’utilisateur (`emil`, `impeccable`, `taste`, `nothing_design`, `color expert main`, `awesome frontend`, `ui ux pro max`, `ui ux design pro`) ne sont pas présents dans l’environnement local. Les guides disponibles ont néanmoins été consultés : `SKILLpaleto.md` recommande une direction visuelle assumée, une typographie distinctive et une exécution cohérente ; `SKILLspago.md` déconseille explicitement les layouts centrés excessifs, les gradients violets, les rayons uniformes et Inter ; `temp_design/brief.md` confirme que le précédent design glassmorphism et les glows colorés doivent être abandonnés.
+La landing n’est plus une page marketing à deux colonnes. Elle commence par un **hero full-screen** où la photographie occupe toute la fenêtre. Le texte s’installe dans la zone sombre de gauche, protégée par un vignettage contrôlé, tandis que le personnage reste le point de tension visuel. La barre de navigation devient un objet glass translucide flottant au-dessus de la scène, avec un flou modéré et une bordure fine.
 
-## Direction retenue
+## Palette
 
-La nouvelle interface adopte une direction **editorial workspace** : un environnement de travail calme, dense et précis, plus proche d’un produit de conversation professionnel que d’une landing page premium. La conversation devient le centre visuel absolu. La sidebar est fonctionnelle mais secondaire, le contenu occupe davantage la largeur et les surfaces sont plates avec des séparateurs fins plutôt que des cartes flottantes répétées.
+| Token | Valeur | Usage |
+|---|---:|---|
+| `--space-black` | `#05080c` | Fond profond, footer, zones de transition. |
+| `--space-night` | `#09131c` | Canvas landing et admin. |
+| `--space-deep` | `#0d2434` | Profondeur bleue et états actifs. |
+| `--space-silver` | `#d9e4ea` | Titres secondaires et contenu premium. |
+| `--space-silver-bright` | `#ffffff` | Texte principal sur l’image et actions critiques. |
+| `--space-cyan` | `#91d7e6` | Eyebrows, indicateurs actifs, focus et détails orbitaux. |
+| `--space-gold` | `#d99b52` | Alertes opérationnelles et facturation, jamais comme décoration. |
 
-Le chat sera composé de trois zones : une barre latérale de navigation compacte, une colonne de conversations/préférences optionnelle et une zone de discussion large centrée sur une largeur de lecture confortable. Le composeur sera bas, fixe dans la zone de chat, plus grand et plus proche des standards ChatGPT/Claude, sans bouton audio, vidéo, upload ou drag-and-drop.
+La section claire conserve un fond minéral bleu-gris pour créer une respiration après le hero. Les titres utilisent un bleu ardoise et non le blanc argent afin de préserver le contraste.
 
-Le CMS admin sera organisé par sections : aperçu, utilisateurs, conversations, compagnons, contenu/prompt, paramètres, sécurité et journal d’audit. Une navigation secondaire et des vues tabulaires remplacent les simples KPI. Chaque vue doit avoir un titre, une phrase de contexte, une action primaire, des filtres et un état vide explicite.
+## Logo et iconographie
 
-## Règles de composition
+Le monogramme VIRELIA est un **V** éditorial contenu dans un cercle chrome, traversé par un anneau orbital elliptique. Il reste lisible à 30 px et ne dépend pas d’un logo généré par image. Les icônes du CMS sont des glyphes courts placés dans des boîtes de 20 px, avec une bordure chrome et un accent cyan lorsque la section est active. Elles servent à repérer rapidement les domaines du CMS, pas à décorer la navigation.
 
-| Axe | Décision |
-|---|---|
-| Typographie | Fraunces pour les titres éditoriaux courts ; IBM Plex Sans pour les données, contrôles et textes longs. Inter est retiré. |
-| Couleur | Base graphite, ivoire et gris chaud ; un accent bleu pétrole réservé aux actions et états actifs ; orange doux uniquement pour les alertes. |
-| Profondeur | Pas de glassmorphism ni de glow. Séparateurs, contrastes de surface et ombres très faibles. |
-| Formes | Rayons différenciés : 6 px pour les contrôles, 10 px pour les panneaux, 14 px seulement pour le composeur et les éléments de conversation. |
-| Densité | Chat large avec beaucoup de hauteur utile ; admin plus dense, mais structuré par sections et non par mosaïque de cartes. |
-| Motion | Transitions courtes et discrètes, aucun effet décoratif qui détourne de la lecture. |
-| Accessibilité | États de focus visibles, labels persistants, contraste renforcé, navigation clavier, `aria-live` pour les réponses. |
-| Exclusions | Aucun audio, vidéo, drag-and-drop, upload, faux bouton social, gradient flashy, avatar décoratif ou métrique inventée. |
+## Motion
 
-## Modèle CMS
+Le système motion est volontairement limité à deux comportements. Les éléments `data-reveal` apparaissent une seule fois lorsqu’ils entrent dans le viewport via `IntersectionObserver`, avec un déplacement vertical court et un délai en cascade pour les cartes. L’image hero reçoit une parallaxe légère via `requestAnimationFrame`, limitée à un facteur faible afin de préserver la netteté et les performances.
 
-Le CMS ne créera pas de données fictives. Il s’appuiera sur les collections et limites actuelles : `users`, `messages`, `companions`, `settings`, `ip_blacklist` et `admin_logs`. Les sections non encore exposées par l’API seront affichées comme surfaces prêtes à brancher, avec des états `bientôt disponible` explicites plutôt que des fonctionnalités simulées.
+`prefers-reduced-motion: reduce` désactive la parallaxe, supprime les transitions et rend les éléments immédiatement visibles. Aucun mouvement n’est indispensable à la compréhension ou à l’action.
+
+## CMS
+
+Le CMS reprend la même palette mais dans une forme utilitaire : sidebar presque noire, surfaces glass bleu graphite, séparateurs fins, actions blanches, statuts cyan et alertes dorées. Le glass est ici une **profondeur fonctionnelle**, pas une esthétique dominante. Les tableaux, formulaires et états vides restent plus importants que les effets d’atmosphère.
+
+## Contraintes maintenues
+
+Le chat reste texte uniquement. Aucun audio, vidéo, upload ou drag-and-drop n’est introduit. Les données admin absentes sont affichées comme non disponibles ou non configurées ; aucune métrique fictive n’est ajoutée pour rendre l’écran plus spectaculaire.
