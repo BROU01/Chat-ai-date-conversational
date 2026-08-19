@@ -31,6 +31,15 @@ test('les nouvelles pages MPA et la source de vérité produit existent', () => 
   assert.match(landing, /LIA/);
 });
 
+test('Vercel publie les assets et route l’API vers le handler serverless', () => {
+  const vercel = JSON.parse(fs.readFileSync(path.join(root, 'vercel.json'), 'utf8'));
+  const api = fs.readFileSync(path.join(root, 'api/index.js'), 'utf8');
+  assert.equal(vercel.builds.some((build) => build.src === 'api/index.js'), true);
+  assert.equal(vercel.builds.some((build) => build.src === 'assets/**'), true);
+  assert.equal(vercel.routes.some((route) => route.src === '/api/(.*)' && route.dest === '/api/index.js'), true);
+  assert.match(api, /require\('\.\.\/src\/app'\)/);
+});
+
 test('la landing applique la direction spatiale et le motion system', () => {
   const landing = fs.readFileSync(path.join(root, 'emiliana-landing.html'), 'utf8');
   const css = fs.readFileSync(path.join(root, 'emiliana.css'), 'utf8');
