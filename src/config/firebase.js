@@ -3,36 +3,53 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-let firebaseApp;
+let firebaseApp = null;
+let firebaseConfigError = null;
+
+function buildCredentialFromEnv() {
+    if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+        return admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT));
+    }
+
+    if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
+        return admin.credential.cert({
+            projectId: process.env.FIREBASE_PROJECT_ID,
+            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+            privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
+        });
+    }
+
+    return null;
+}
 
 try {
-    if (!admin.apps.length) {
-        // En production, Firebase utilise les variables d'environnement par défaut si on est sur GCP/Firebase
-        // Sinon, on peut passer un serviceAccountKey.json ou des variables d'env individuelles
-        const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT 
-            ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
-            : null;
-
-        if (serviceAccount) {
+    if (admin.apps.length) {
+        firebaseApp = admin.app();
+    } else {
+        const credential = buildCredentialFromEnv();
+        if (credential) {
             firebaseApp = admin.initializeApp({
-                credential: admin.credential.cert(serviceAccount),
+                credential,
                 databaseURL: process.env.FIREBASE_DATABASE_URL,
                 storageBucket: process.env.FIREBASE_STORAGE_BUCKET
             });
-        } else {
-            // Fallback pour le développement local ou si configuré via ADC
+        } else if (process.env.NODE_ENV !== 'production') {
             firebaseApp = admin.initializeApp();
+        } else {
+            firebaseConfigError = new Error('Firebase server credentials are not configured.');
+            console.warn(`[firebase] ${firebaseConfigError.message}`);
         }
-        console.log('✓ Firebase Admin initialisé avec succès');
-    } else {
-        firebaseApp = admin.app();
     }
+
+    if (firebaseApp) console.log('✓ Firebase Admin initialisé avec succès');
 } catch (error) {
+    firebaseConfigError = error;
     console.error('Erreur initialisation Firebase Admin:', error.message);
 }
 
-const db = admin.firestore();
-const auth = admin.auth();
-const storage = admin.storage();
+const isFirebaseConfigured = Boolean(firebaseApp);
+const db = isFirebaseConfigured ? admin.firestore() : null;
+const auth = isFirebaseConfigured ? admin.auth() : null;
+const storage = isFirebaseConfigured ? admin.storage() : null;
 
-module.exports = { admin, db, auth, storage };
+module.exports = { admin, db, auth, storage, isFirebaseConfigured, firebaseConfigError };

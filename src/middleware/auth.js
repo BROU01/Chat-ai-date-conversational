@@ -1,8 +1,11 @@
-const { auth } = require('../config/firebase');
+const { auth, isFirebaseConfigured } = require('../config/firebase');
 const firebaseService = require('../services/firebaseService');
 const logger = require('../utils/logger');
 
 const authenticate = async (req, res, next) => {
+    if (!isFirebaseConfigured || !auth) {
+        return res.status(503).json({ success: false, message: 'Authentification temporairement indisponible : Firebase doit être configuré côté serveur.' });
+    }
     try {
         const ip = req.ip || req.connection.remoteAddress;
         const isBlacklisted = await firebaseService.isIPBlacklisted(ip);
