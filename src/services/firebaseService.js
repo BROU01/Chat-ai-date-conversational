@@ -57,21 +57,13 @@ const firebaseService = {
         try {
             const today = new Date().toISOString().split('T')[0];
             const userRef = db.collection('users').doc(uid);
-            const userDoc = await userRef.get();
-            
-            if (userDoc.exists) {
+            await db.runTransaction(async (transaction) => {
+                const userDoc = await transaction.get(userRef);
+                if (!userDoc.exists) throw new Error(`User ${uid} not found`);
                 const data = userDoc.data();
-                if (data.lastMessageDate !== today) {
-                    await userRef.update({
-                        messagesToday: 1,
-                        lastMessageDate: today
-                    });
-                } else {
-                    await userRef.update({
-                        messagesToday: (data.messagesToday || 0) + 1
-                    });
-                }
-            }
+                const nextCount = data.lastMessageDate === today ? (data.messagesToday || 0) + 1 : 1;
+                transaction.update(userRef, { messagesToday: nextCount, lastMessageDate: today, lastActivityDate: new Date().toISOString() });
+            });
         } catch (error) {
             logger.error('Error incrementing message count in Firestore:', error);
             throw error;

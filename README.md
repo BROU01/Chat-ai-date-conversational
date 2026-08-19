@@ -1,63 +1,72 @@
-# Emiliana - Premium AI Companion Platform (Production Ready)
+# Emiliana
 
-Ce projet a été restructuré pour atteindre un niveau de production, avec une architecture robuste, une sécurité renforcée et une intégration Firebase complète.
+Emiliana est une application de conversation avec des présences IA configurables. La refonte met l’accent sur une interface calme, lisible et accessible, ainsi que sur des contrats backend explicites et une persistance Firebase cohérente.
+
+> Emiliana est un outil de conversation avec une IA. Il ne remplace ni une relation humaine, ni un professionnel de santé, ni un service d’urgence.
 
 ## Architecture
-- **Backend**: Node.js avec Express, structuré en couches (Controllers, Routes, Services, Middlewares).
-- **Frontend**: HTML/CSS/JS statique, optimisé pour la performance et le design (inspiré par les standards UI/UX Pro).
-- **Base de données**: Google Firebase Firestore pour la persistance des données (Utilisateurs, Messages, Compagnons).
-- **Authentification**: Firebase Auth (supportant Email/Mot de passe et Social Auth).
-- **IA**: Intégration multi-fournisseurs (Groq, OpenRouter) avec logique de fallback et retry exponentiel.
-- **Logging**: Winston pour un logging détaillé en production.
-- **Validation**: Zod pour la validation des données entrantes.
 
-## Installation
+Le serveur est construit avec **Node.js et Express**. Il sert les pages HTML statiques, applique les en-têtes de sécurité via Helmet, limite les requêtes avec `express-rate-limit`, valide les entrées avec Zod et expose les routes `/api/auth`, `/api/chat` et `/api/admin`.
 
-1. Clonez le dépôt.
-2. Installez les dépendances :
-   ```bash
-   npm install
-   ```
-3. Configurez les variables d'environnement dans un fichier `.env` :
-   ```env
-   PORT=3002
-   GROQ_API_KEY=votre_cle_groq
-   OPENROUTER_API_KEY=votre_cle_openrouter
-   FIREBASE_SERVICE_ACCOUNT='{...}' # JSON du compte de service Firebase
-   FIREBASE_DATABASE_URL=https://votre-projet.firebaseio.com
-   SESSION_SECRET=votre_secret_session
-   DAILY_MESSAGE_LIMIT=200
-   ```
-4. Configurez le frontend dans `firebase-config.js` avec vos identifiants Firebase client.
+Le frontend reste volontairement léger : pages HTML accessibles, feuille de style partagée et contrôleur JavaScript commun dans `assets/app.js`. L’authentification email et Google passe par Firebase Auth côté client, puis les tokens Firebase sont vérifiés par le backend avant d’autoriser l’accès à Firestore.
 
-## Démarrage
+Firestore constitue la source de vérité pour les profils, les messages et les journaux d’administration. Le compteur quotidien de messages est mis à jour dans une transaction Firestore afin d’éviter les dépassements dus aux requêtes concurrentes.
 
-### Mode Développement
+## Installation locale
+
 ```bash
-npm run dev
-```
-
-### Mode Production
-```bash
+npm install
+npm test
 npm start
 ```
 
-## Structure du Projet
-- `src/config/`: Configuration (Firebase, etc.)
-- `src/controllers/`: Logique de traitement des requêtes
-- `src/routes/`: Définition des points d'entrée API
-- `src/services/`: Services métier (IA, Firebase)
-- `src/middleware/`: Middlewares (Auth, Erreurs)
-- `src/utils/`: Utilitaires (Logger)
-- `tests/`: Suite de tests
+L’application est ensuite disponible sur `http://localhost:3002`.
 
-## Fonctionnalités Clés
-- **Prompting Avancé**: Système de prompt dynamique basé sur l'archétype du compagnon.
-- **Social Auth**: Correction des problèmes d'API via Firebase Auth.
-- **Panel Admin**: Monitoring en temps réel, gestion des utilisateurs et logs.
-- **Robustesse**: Gestion des erreurs centralisée et validation stricte.
+## Variables d’environnement
 
-## Planification Future
-- Intégration de Google AI Studio.
-- Dashboard de statistiques avancées avec graphiques.
-- Support pour le stockage de fichiers via Firebase Storage.
+Créer un fichier `.env` local ou renseigner les variables dans la plateforme de déploiement :
+
+```env
+NODE_ENV=production
+PORT=3002
+DAILY_MESSAGE_LIMIT=200
+CORS_ORIGIN=https://votre-domaine.example
+GROQ_API_KEY=votre_cle_groq
+OPENROUTER_API_KEY=votre_cle_openrouter
+FIREBASE_SERVICE_ACCOUNT='{"type":"service_account", ...}'
+FIREBASE_DATABASE_URL=https://votre-projet.firebaseio.com
+FIREBASE_STORAGE_BUCKET=votre-projet.appspot.com
+```
+
+La configuration Firebase client est publique par nature, mais les clés de fournisseurs IA et le compte de service Firebase doivent rester exclusivement côté serveur et ne doivent jamais être commités.
+
+## Routes principales
+
+| Route | Usage |
+|---|---|
+| `/` ou `/landing` | Page d’accueil |
+| `/login` | Connexion et inscription |
+| `/chat` | Espace de conversation protégé côté client et API |
+| `/about` | Positionnement et limites d’usage |
+| `/admin` | Tableau de bord réservé aux administrateurs |
+| `/api/health` | Contrôle de disponibilité |
+
+## Contrôles de qualité
+
+`npm test` exécute les smoke tests Node natifs. La suite vérifie la présence des écrans, le chargement Express et l’absence de l’ancien thème gradient. Avant livraison, il est recommandé d’exécuter également un test de bout en bout avec un projet Firebase de staging, un compte utilisateur non privilégié et un compte administrateur dédié.
+
+## Déploiement
+
+Le projet peut être déployé sur Vercel avec `server.js` comme fonction Node et les pages statiques comme assets. Les variables d’environnement doivent être déclarées dans l’environnement de production. Le domaine de production doit être ajouté aux domaines autorisés Firebase Auth et `CORS_ORIGIN` doit être limité aux origines réellement utilisées.
+
+## Structure utile
+
+```text
+assets/app.js                  Contrôleur frontend partagé
+emiliana.css                  Système de design et responsive UI
+src/app.js                    Initialisation Express et sécurité
+src/controllers/               Contrôleurs HTTP
+src/services/                  IA et persistance Firebase
+src/middleware/                Authentification et gestion d’erreurs
+tests/smoke.test.js            Smoke tests de livraison
+```

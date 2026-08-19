@@ -43,8 +43,7 @@ const chatController = {
             const companion = aiService.normalizeCompanion(companionProfile, botType);
             const aiResult = await aiService.generateResponse(message, companion, conversationHistory);
 
-            // Persistance asynchrone (ne pas bloquer la réponse)
-            Promise.all([
+            await Promise.all([
                 firebaseService.saveMessage({
                     userId: user.uid,
                     userMessage: message,
@@ -56,7 +55,7 @@ const chatController = {
                 }),
                 firebaseService.incrementMessageCount(user.uid),
                 firebaseService.updateUserActivity(user.uid)
-            ]).catch(err => logger.error('Background persistence error:', err));
+            ]);
 
             res.json({
                 success: true,
