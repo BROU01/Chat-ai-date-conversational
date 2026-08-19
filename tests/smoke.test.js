@@ -21,4 +21,14 @@ test('les pages ne contiennent pas l’ancien thème gradient', () => {
   const css = fs.readFileSync(path.join(root, 'emiliana.css'), 'utf8');
   assert.equal(css.includes('--gradient-primary'), false);
   assert.equal(css.includes('backdrop-filter: blur(20px) saturate(180%)'), false);
+  assert.equal(css.includes('purple'), false);
+});
+
+test('le chat et le CMS respectent le périmètre fonctionnel', () => {
+  const chat = fs.readFileSync(path.join(root, 'emiliana-chat.html'), 'utf8');
+  const admin = fs.readFileSync(path.join(root, 'emiliana-admin.html'), 'utf8');
+  assert.match(chat, /class="chat-workspace"/);
+  assert.match(chat, /class="composer-wrap"/);
+  assert.doesNotMatch(chat, /audio|video|drag|drop|upload/i);
+  for (const section of ['overview', 'companions', 'prompts', 'conversations', 'users', 'security', 'settings', 'audit']) assert.match(admin, new RegExp(`data-cms-view="${section}"`));
 });

@@ -7,14 +7,42 @@
   <title>Conversation — Emiliana</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/emiliana.css">
   <script defer src="/assets/app.js"></script>
 </head>
 <body data-page="chat">
   <div class="app-shell">
-    <aside class="app-sidebar"><div class="sidebar-brand"><a class="brand" href="/"><span class="brand-mark">e</span><span class="brand-name">Emiliana</span></a></div><nav class="sidebar-nav" aria-label="Navigation de l’espace"><a href="/chat" aria-current="page"><span aria-hidden="true">◌</span> Conversation</a><a href="/about"><span aria-hidden="true">i</span> À propos</a></nav><div class="sidebar-bottom"><div class="user-chip"><span class="avatar avatar-sm js-avatar">E</span><div><strong class="js-user-name">Votre espace</strong><span class="js-user-email"></span></div></div><button class="btn btn-quiet btn-small js-logout" type="button">Se déconnecter</button></div></aside>
-    <main class="app-main"><header class="app-topbar"><div style="display:flex;align-items:center;gap:12px"><button class="btn btn-secondary btn-small mobile-only" type="button" data-sidebar-toggle aria-label="Ouvrir le menu">Menu</button><div><p class="eyebrow" style="margin:0 0 2px">Votre espace</p><h1>Conversation</h1></div></div><span class="badge">Privé</span></header><div class="app-content"><div class="chat-layout"><section class="panel" aria-labelledby="companions-title"><div class="panel-header"><h2 id="companions-title">Choisir une présence</h2></div><div id="companion-list" class="companion-list"></div></section><section class="panel chat-panel" aria-labelledby="chat-companion-name"><div class="panel-header"><div class="chat-header-profile"><span id="chat-avatar" class="avatar avatar-lg">E</span><div><strong id="chat-companion-name">Emiliana</strong><span id="chat-companion-role">Présence attentive</span></div></div><span class="badge">En ligne</span></div><div id="message-list" class="message-list" aria-live="polite"></div><div id="chat-status" class="chat-status">Votre espace de conversation</div><form id="chat-form" class="composer"><label class="sr-only" for="chat-input">Votre message</label><textarea id="chat-input" maxlength="2000" placeholder="Écrire un message…" required></textarea><button class="btn btn-primary" type="submit">Envoyer</button></form></section></div></div></main>
+    <aside class="app-sidebar">
+      <div class="sidebar-brand"><a class="brand" href="/" aria-label="Emiliana"><span class="brand-mark">e</span><span class="brand-name">Emiliana</span></a></div>
+      <div class="sidebar-section-label">Espace</div>
+      <nav class="sidebar-nav" aria-label="Navigation de l’espace">
+        <a href="/chat" aria-current="page"><span class="nav-icon" aria-hidden="true">◌</span> Conversation</a>
+        <a href="/about"><span class="nav-icon" aria-hidden="true">i</span> À propos</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="user-chip"><span class="avatar avatar-sm js-avatar">E</span><div><strong class="js-user-name">Votre espace</strong><span class="js-user-email"></span></div></div>
+        <button class="btn btn-quiet btn-small js-logout" type="button">Se déconnecter</button>
+      </div>
+    </aside>
+    <main class="app-main">
+      <header class="app-topbar"><div style="display:flex;align-items:center;gap:11px"><button class="btn btn-secondary btn-small mobile-only" type="button" data-sidebar-toggle aria-label="Ouvrir le menu">Menu</button><div><p class="eyebrow">Espace privé</p><h1>Conversation</h1></div></div><span class="badge">Confidentiel</span></header>
+      <div class="app-content app-content-wide">
+        <div class="chat-workspace">
+          <aside class="chat-rail" aria-label="Présences et conversations">
+            <div class="chat-rail-header"><h2>Votre espace</h2><button class="btn btn-secondary btn-icon btn-small" type="button" aria-label="Nouvelle conversation">+</button></div>
+            <p class="rail-caption">Présences</p><div id="companion-list" class="companion-list"></div>
+            <p class="rail-caption">Conversations récentes</p><div class="conversation-list"><a class="conversation-item is-active" href="#"><strong>Commencer une nouvelle conversation</strong><small>Maintenant</small></a><a class="conversation-item" href="#"><strong>Mettre de l’ordre dans mes pensées</strong><small>Hier</small></a></div>
+          </aside>
+          <section class="chat-main" aria-labelledby="chat-companion-name">
+            <header class="chat-main-header"><div class="chat-header-profile"><span id="chat-avatar" class="avatar avatar-lg">E</span><div><strong id="chat-companion-name">Emiliana</strong><span id="chat-companion-role">Présence attentive</span></div></div><div class="chat-header-actions"><span class="badge">En ligne</span><button class="btn btn-quiet btn-icon" type="button" aria-label="Options de conversation">•••</button></div></header>
+            <div id="message-list" class="message-list" aria-live="polite"></div>
+            <div id="chat-status" class="chat-status" aria-live="polite">Votre espace de conversation</div>
+            <div class="composer-wrap"><form id="chat-form" class="composer"><label class="sr-only" for="chat-input">Votre message</label><textarea id="chat-input" maxlength="2000" rows="1" placeholder="Écrire un message…" required></textarea><button class="btn btn-primary" type="submit">Envoyer</button></form><p class="composer-note">Emiliana peut se tromper. Vérifiez les informations importantes.</p></div>
+          </section>
+        </div>
+      </div>
+    </main>
   </div>
   <div id="toast" class="toast" hidden role="status"></div>
 </body>

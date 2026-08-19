@@ -38,6 +38,39 @@ const adminController = {
     } catch (error) { next(error); }
   },
 
+  async getCompanions(req, res, next) {
+    try {
+      const snapshot = await db.collection('companions').orderBy('createdAt', 'desc').limit(100).get();
+      res.json({ success: true, companions: snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) });
+    } catch (error) { next(error); }
+  },
+
+  async createCompanion(req, res, next) {
+    try {
+      const companion = z.object({ name: z.string().trim().min(2).max(40), archetype: z.string().trim().min(2).max(60), description: z.string().trim().min(10).max(500), systemPrompt: z.string().trim().max(4000).optional() }).parse(req.body);
+      const ref = await db.collection('companions').add({ ...companion, active: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+      await firebaseService.logAdminAction(req.user.uid, 'CREATE_COMPANION', { id: ref.id, name: companion.name });
+      res.status(201).json({ success: true, companion: { id: ref.id, ...companion, active: true } });
+    } catch (error) { next(error); }
+  },
+
+  async updateCompanion(req, res, next) {
+    try {
+      const payload = z.object({ name: z.string().trim().min(2).max(40).optional(), archetype: z.string().trim().min(2).max(60).optional(), description: z.string().trim().min(10).max(500).optional(), systemPrompt: z.string().trim().max(4000).optional(), active: z.boolean().optional() }).parse(req.body);
+      await db.collection('companions').doc(req.params.id).update({ ...payload, updatedAt: new Date().toISOString() });
+      await firebaseService.logAdminAction(req.user.uid, 'UPDATE_COMPANION', { id: req.params.id });
+      res.json({ success: true, message: 'Compagnon mis à jour.' });
+    } catch (error) { next(error); }
+  },
+
+  async deleteCompanion(req, res, next) {
+    try {
+      await db.collection('companions').doc(req.params.id).delete();
+      await firebaseService.logAdminAction(req.user.uid, 'DELETE_COMPANION', { id: req.params.id });
+      res.json({ success: true, message: 'Compagnon supprimé.' });
+    } catch (error) { next(error); }
+  },
+
   async getConfig(req, res, next) { try { res.json({ success: true, config: await firebaseService.getSystemConfig() }); } catch (error) { next(error); } },
   async updateConfig(req, res, next) { try { await firebaseService.updateSystemConfig(req.body); await firebaseService.logAdminAction(req.user.uid, 'UPDATE_CONFIG', req.body); res.json({ success: true, message: 'Configuration mise à jour.' }); } catch (error) { next(error); } },
   async getBlacklist(req, res, next) { try { const snapshot = await db.collection('ip_blacklist').get(); res.json({ success: true, blacklist: snapshot.docs.map((doc) => ({ ip: doc.id, ...doc.data() })) }); } catch (error) { next(error); } },

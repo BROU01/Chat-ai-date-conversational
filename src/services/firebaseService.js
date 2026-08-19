@@ -131,16 +131,18 @@ const firebaseService = {
             return doc.exists ? doc.data() : {
                 botIdentity: {
                     name: 'Emiliana',
-                    description: 'Votre compagnon IA intelligent',
-                    language: 'fr'
+                    description: 'Une présence attentive pour prendre le temps de réfléchir.',
+                    language: 'fr',
+                    systemPrompt: ''
                 },
                 quotas: {
                     dailyLimit: 200,
                     monthlyBudget: 50
                 },
                 ui: {
-                    primaryColor: '#8b5cf6',
-                    position: 'bottom-right'
+                    primaryColor: '#2b665a',
+                    surfaceColor: '#f5f5f2',
+                    position: 'workspace'
                 }
             };
         } catch (error) {
