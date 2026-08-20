@@ -66,6 +66,10 @@ test('les vues disposent de contrôles mobiles et de règles responsive', () => 
   assert.match(css, /overflow-x: auto/);
   assert.match(chat, /data-chat-rail-toggle/);
   assert.match(admin, /data-cms-nav-toggle/);
+  assert.match(admin, /data-cms-sidebar-jump="companions"/);
+  assert.match(admin, /id="companion-system-prompt"/);
+  assert.match(admin, /id="audit-logs"/);
+  assert.match(admin, /Gouvernance conversationnelle/);
   assert.match(app, /chatRailButton/);
   assert.match(app, /cmsNavButton/);
   assert.match(readme, /git push origin main/);

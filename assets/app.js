@@ -151,7 +151,17 @@
     try {
       const result = await api('/admin/companions');
       const items = result.companions || [];
-      node.innerHTML = items.length ? items.map((item) => `<div class="info-row"><span><strong>${escape(item.name)}</strong><br><small>${escape(item.description || '—')}</small></span><span class="badge ${item.active === false ? 'badge-neutral' : ''}">${item.active === false ? 'Inactif' : 'Actif'}</span></div>`).join('') : '<div class="table-empty">Aucun compagnon personnalisé.</div>';
+      node.innerHTML = items.length ? items.map((item) => `<article class="admin-record"><div class="admin-record-main"><span class="avatar avatar-sm">${escape(initials(item.name))}</span><div><strong>${escape(item.name)}</strong><small>${escape(item.archetype || 'Présence')}</small><p>${escape(item.description || 'Aucune description')}</p></div></div><div class="admin-record-actions"><span class="badge ${item.active === false ? 'badge-neutral' : ''}">${item.active === false ? 'Inactif' : 'Actif'}</span><button class="btn btn-quiet btn-small js-companion-edit" type="button" data-companion='${escape(JSON.stringify(item))}'>Modifier</button><button class="btn btn-quiet btn-small js-companion-toggle" type="button" data-id="${escape(item.id)}" data-active="${item.active !== false}">${item.active === false ? 'Activer' : 'Désactiver'}</button></div></article>`).join('') : '<div class="table-empty">Aucun compagnon personnalisé.</div>';
+      $$('.js-companion-edit').forEach((button) => button.addEventListener('click', () => {
+        const item = JSON.parse(button.dataset.companion); const form = $('#companion-form');
+        if (!form) return;
+        $('#companion-id').value = item.id || ''; $('#companion-form-title').textContent = `Modifier ${item.name}`;
+        $('#companion-name').value = item.name || ''; $('#companion-archetype').value = item.archetype || 'Bienveillant'; $('#companion-description').value = item.description || ''; $('#companion-system-prompt').value = item.systemPrompt || ''; $('#companion-active').checked = item.active !== false;
+        $('#companion-name').focus();
+      }));
+      $$('.js-companion-toggle').forEach((button) => button.addEventListener('click', async () => {
+        try { await api(`/admin/companions/${encodeURIComponent(button.dataset.id)}`, { method: 'PATCH', body: JSON.stringify({ active: button.dataset.active !== 'true' }) }); notify('Disponibilité de la présence mise à jour.'); loadAdminCompanions(); } catch (error) { notify(error.message || 'Mise à jour impossible.'); }
+      }));
     } catch { node.innerHTML = '<div class="table-empty">Catalogue indisponible.</div>'; }
   }
 
@@ -169,17 +179,21 @@
 
   function setupAdmin() {
     if (!protectPage({ admin: true })) return;
-    const panels = $$('[data-cms-panel]'); const navButtons = $$('[data-cms-view]');
-    const showPanel = (name) => { panels.forEach((panel) => { panel.hidden = panel.dataset.cmsPanel !== name; }); navButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.cmsView === name)); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+    const panels = $$('[data-cms-panel]'); const navButtons = $$('[data-cms-view]'); const sidebarLinks = $$('[data-cms-sidebar-jump]');
+    const showPanel = (name) => { panels.forEach((panel) => { panel.hidden = panel.dataset.cmsPanel !== name; }); navButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.cmsView === name)); sidebarLinks.forEach((link) => { const active = link.dataset.cmsSidebarJump === name; link.toggleAttribute('aria-current', active); }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
     navButtons.forEach((button) => button.addEventListener('click', () => showPanel(button.dataset.cmsView)));
     $$('[data-cms-jump]').forEach((button) => button.addEventListener('click', () => showPanel(button.dataset.cmsJump)));
+    $$('[data-cms-sidebar-jump]').forEach((link) => link.addEventListener('click', (event) => { event.preventDefault(); showPanel(link.dataset.cmsSidebarJump); sidebar?.classList.remove('is-open'); }));
     $$('[data-refresh-admin]').forEach((button) => button.addEventListener('click', loadAdminData));
     $('[data-refresh-audit]')?.addEventListener('click', loadAudit);
     loadConversations();
     $('#settings-form')?.addEventListener('submit', async (event) => { event.preventDefault(); try { await api('/admin/config', { method: 'POST', body: JSON.stringify({ botIdentity: { name: $('#setting-bot-name').value.trim(), description: $('#setting-description').value.trim() }, quotas: { dailyLimit: Number($('#setting-daily-limit').value) } }) }); notify('Paramètres enregistrés.'); } catch (error) { notify(error.message || 'Enregistrement impossible.'); } });
     $('#config-form')?.addEventListener('submit', async (event) => { event.preventDefault(); try { await api('/admin/config', { method: 'POST', body: JSON.stringify({ botIdentity: { systemPrompt: $('#system-prompt').value.trim() } }) }); notify('Brouillon de prompt enregistré.'); } catch (error) { notify(error.message || 'Enregistrement impossible.'); } });
     $('#blacklist-form')?.addEventListener('submit', async (event) => { event.preventDefault(); try { await api('/admin/blacklist', { method: 'POST', body: JSON.stringify({ ip: $('#blacklist-ip').value.trim(), reason: $('#blacklist-reason').value.trim() }) }); notify('Adresse ajoutée au blocage.'); $('#blacklist-ip').value = ''; $('#blacklist-reason').value = ''; loadBlacklist(); } catch (error) { notify(error.message || 'Ajout impossible.'); } });
-    $('#companion-form')?.addEventListener('submit', async (event) => { event.preventDefault(); try { await api('/admin/companions', { method: 'POST', body: JSON.stringify({ name: $('#companion-name').value.trim(), archetype: $('#companion-archetype').value, description: $('#companion-description').value.trim() }) }); notify('Compagnon créé.'); event.target.reset(); loadAdminCompanions(); } catch (error) { notify(error.message || 'Création impossible.'); } });
+    const resetCompanionForm = () => { const form = $('#companion-form'); if (!form) return; form.reset(); $('#companion-id').value = ''; $('#companion-form-title').textContent = 'Nouvelle présence'; $('#companion-active').checked = true; };
+    $('[data-open-companion-form]')?.addEventListener('click', () => { showPanel('companions'); resetCompanionForm(); $('#companion-name')?.focus(); });
+    $('[data-cancel-companion]')?.addEventListener('click', resetCompanionForm);
+    $('#companion-form')?.addEventListener('submit', async (event) => { event.preventDefault(); const id = $('#companion-id').value.trim(); const payload = { name: $('#companion-name').value.trim(), archetype: $('#companion-archetype').value, description: $('#companion-description').value.trim(), systemPrompt: $('#companion-system-prompt').value.trim(), active: $('#companion-active').checked }; try { await api(id ? `/admin/companions/${encodeURIComponent(id)}` : '/admin/companions', { method: id ? 'PATCH' : 'POST', body: JSON.stringify(payload) }); notify(id ? 'Présence mise à jour.' : 'Présence créée.'); resetCompanionForm(); loadAdminCompanions(); } catch (error) { notify(error.message || 'Enregistrement impossible.'); } });
     $('#user-search')?.addEventListener('input', () => { const query = $('#user-search').value.toLowerCase(); $$('#users-table-full tr').forEach((row) => { row.hidden = query && !row.textContent.toLowerCase().includes(query); }); });
     $('#user-role-filter')?.addEventListener('change', () => { const role = $('#user-role-filter').value; $$('#users-table-full tr').forEach((row) => { row.hidden = role && !row.textContent.toLowerCase().includes(role); }); });
     loadAdminData(); loadAdminConfig(); loadAdminCompanions(); loadBlacklist(); loadConversations(); loadAudit();
