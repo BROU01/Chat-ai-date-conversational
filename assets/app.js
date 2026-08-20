@@ -6,12 +6,14 @@
   const API = '/api';
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
-  const storage = window.sessionStorage;
+  const storage = window.localStorage;
+  const legacyStorage = window.sessionStorage;
+  const readStorage = (key) => storage.getItem(key) || legacyStorage.getItem(key);
 
-  const getUser = () => { try { return JSON.parse(storage.getItem(USER_KEY) || 'null'); } catch { return null; } };
-  const getToken = () => storage.getItem(TOKEN_KEY);
-  const setSession = (token, user) => { if (token) storage.setItem(TOKEN_KEY, token); if (user) storage.setItem(USER_KEY, JSON.stringify(user)); };
-  const clearSession = () => { storage.removeItem(TOKEN_KEY); storage.removeItem(USER_KEY); };
+  const getUser = () => { try { return JSON.parse(readStorage(USER_KEY) || 'null'); } catch { return null; } };
+  const getToken = () => readStorage(TOKEN_KEY);
+  const setSession = (token, user) => { if (token) storage.setItem(TOKEN_KEY, token); if (user) storage.setItem(USER_KEY, JSON.stringify(user)); legacyStorage.removeItem(TOKEN_KEY); legacyStorage.removeItem(USER_KEY); };
+  const clearSession = () => { storage.removeItem(TOKEN_KEY); storage.removeItem(USER_KEY); legacyStorage.removeItem(TOKEN_KEY); legacyStorage.removeItem(USER_KEY); };
   const escape = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
   const initials = (name) => String(name || 'E').trim().slice(0, 1).toUpperCase();
   const displayDate = (value) => value ? new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(value)) : '—';
@@ -40,9 +42,10 @@
 
   function protectPage({ admin = false } = {}) {
     const user = getUser();
-    if (!getToken() || !user) { window.location.replace('/login'); return false; }
-    if (admin && user.role !== 'admin') { window.location.replace('/chat'); return false; }
-    renderUserChip(); return true;
+    document.body.classList.add('auth-pending');
+    if (!getToken() || !user) { document.body.classList.add('auth-redirecting'); window.location.replace('/login'); return false; }
+    if (admin && user.role !== 'admin') { document.body.classList.add('auth-redirecting'); window.location.replace('/chat'); return false; }
+    document.body.classList.remove('auth-pending'); document.body.classList.add('auth-allowed'); renderUserChip(); return true;
   }
 
   function setupTheme() {
@@ -93,7 +96,7 @@
     $$('.auth-tab').forEach((tab) => tab.addEventListener('click', () => { $$('.auth-tab').forEach((item) => item.classList.toggle('is-active', item === tab)); const mode = tab.dataset.mode; loginForm.hidden = mode !== 'login'; registerForm.hidden = mode !== 'register'; showMessage(''); }));
     loginForm.addEventListener('submit', async (event) => {
       event.preventDefault(); const button = $('button[type="submit"]', loginForm); button.disabled = true; button.textContent = 'Connexion…'; showMessage('');
-      try { if (!window.auth) throw new Error('Le service d’authentification n’est pas configuré.'); const credentials = await window.auth.signInWithEmailAndPassword($('#login-email').value.trim(), $('#login-password').value); const token = await credentials.user.getIdToken(true); const result = await api('/auth/login', { method: 'POST', body: JSON.stringify({ idToken: token }) }); setSession(result.token || token, result.user); window.location.replace('/chat'); }
+      try { if (!window.auth) throw new Error('Le service d’authentification n’est pas configuré.'); const credentials = await window.auth.signInWithEmailAndPassword($('#login-email').value.trim(), $('#login-password').value); const token = await credentials.user.getIdToken(true); const result = await api('/auth/login', { method: 'POST', body: JSON.stringify({ idToken: token }) }); setSession(result.token || token, result.user); window.location.replace(result.user?.role === 'admin' ? '/admin' : '/chat'); }
       catch (error) { showMessage(error.message || 'Connexion impossible.'); } finally { button.disabled = false; button.textContent = 'Se connecter'; }
     });
     registerForm.addEventListener('submit', async (event) => {

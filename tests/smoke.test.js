@@ -81,6 +81,6 @@ test('le chat et le CMS respectent le périmètre fonctionnel', () => {
   assert.match(chat, /class="chat-workspace"/);
   assert.match(chat, /class="composer-wrap"/);
   assert.doesNotMatch(chat, /audio|video|drag|drop|upload/i);
-  assert.match(admin, /class="space-admin"/);
+  assert.match(admin, /class="space-admin(?:\s|\")/);
   for (const section of ['overview', 'companions', 'prompts', 'conversations', 'users', 'security', 'providers', 'knowledge', 'automations', 'moderation', 'billing', 'alerts', 'widget', 'deployments', 'settings', 'audit']) assert.match(admin, new RegExp(`data-cms-view="${section}"`));
 });

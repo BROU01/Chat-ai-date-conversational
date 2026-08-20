@@ -779,3 +779,8 @@ button, input, select, textarea { max-width: 100%; }
   .deployment-step em { grid-column: 2; }
   .empty-state-panel { min-height: 220px; padding: 24px; }
 }
+
+/* Protected-route guard: avoid exposing a page during client auth resolution */
+.protected-page.auth-pending { visibility: hidden; }
+.protected-page.auth-pending.auth-redirecting { display: none; }
+.protected-page.auth-allowed { visibility: visible; }
